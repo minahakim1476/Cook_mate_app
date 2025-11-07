@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">CookMate</string>
+    <string name="onboarding_screen_happy_people">Onboarding screen happy people</string>
+    <string name="discover_daily_recipes">Discover Daily Recipes</string>
+    <string name="discover_screen_text">Get personalised meal recommendations tailored to your taste and dietary preferences</string>
+    <string name="ai_chef_screen_text">Ask cooking questions, get recipe suggestions, and learn new culinary techniques</string>
+    <string name="onboarding_ai_chef">Onboarding ai chef</string>
+    <string name="chat_with_ai_chef">Chat with AI Chef</string>
 </resources>
