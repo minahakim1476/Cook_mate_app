@@ -1,8 +1,7 @@
 <resources>
-<<<<<<< HEAD
-    <string name="app_name">Movie Review App</string>
+
     <string name="title_activity_login">LoginActivity</string>
-=======
+
     <string name="app_name">CookMate</string>
     <string name="onboarding_screen_happy_people">Onboarding screen happy people</string>
     <string name="discover_daily_recipes">Discover Daily Recipes</string>
@@ -10,5 +9,4 @@
     <string name="ai_chef_screen_text">Ask cooking questions, get recipe suggestions, and learn new culinary techniques</string>
     <string name="onboarding_ai_chef">Onboarding ai chef</string>
     <string name="chat_with_ai_chef">Chat with AI Chef</string>
->>>>>>> d156785b49ce72396ae4d019f2d1a1b0a464ed01
 </resources>

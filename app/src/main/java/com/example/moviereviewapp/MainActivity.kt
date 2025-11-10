@@ -18,20 +18,17 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         // -----------------------------
 
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             MovieReviewAppTheme {
-<<<<<<< HEAD
-                LoginScreen()
-=======
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     containerColor = AppBgColor
                 ) { innerPadding ->
                     AppNavHost(modifier = Modifier.padding(innerPadding))
                 }
->>>>>>> d156785b49ce72396ae4d019f2d1a1b0a464ed01
             }
         }
     }

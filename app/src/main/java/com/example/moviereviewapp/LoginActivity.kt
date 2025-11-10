@@ -14,9 +14,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -85,29 +88,30 @@ fun LoginScreen(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .padding(24.dp)
-            .background(androidx.compose.ui.graphics.Color(0xFFFFF8F3))
             .fillMaxSize()
     ) {
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(top = 46.dp),
+                .padding(top = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // App Logo
             Box(
                 modifier = modifier
-                    .size(100.dp),
+                    .size(80.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(R.drawable.chef_logo),
                     contentDescription = "Cookmate logo",
-                    modifier = modifier.size(200.dp)
+                    modifier = modifier
+                        .size(200.dp)
+                        .background(Color(0xFFFFF8F3))
                 )
             }
 
-            Spacer(modifier = modifier.height(32.dp))
+            Spacer(modifier = modifier.height(30.dp))
 
             // Login text
             Text(
@@ -118,7 +122,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 color = colorResource(R.color.orange)
             )
 
-            Spacer(modifier = modifier.height(32.dp))
+            Spacer(modifier = modifier.height(30.dp))
 
             // Email text field
             OutlinedTextField(
@@ -131,13 +135,14 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                         modifier = modifier.size(20.dp)
                     )
                 },
-                placeholder = { Text("Enter your email", color = Color.Gray) },
+                placeholder = { Text("Enter your email", color = Color.Gray, fontSize = 13.sp) },
                 modifier = modifier
                     .fillMaxWidth()
-                    .height(60.dp),
+                    .height(54.dp),
                 shape = RoundedCornerShape(12.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                singleLine = true
+                singleLine = true,
+                textStyle = TextStyle(fontSize = 14.sp)
             )
 
             Spacer(modifier = modifier.height(18.dp))
@@ -153,19 +158,22 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                         modifier = modifier.size(20.dp)
                     )
                 },
-                placeholder = { Text("Enter your password", color = Color.Gray) },
+                placeholder = { Text("Enter your password", color = Color.Gray, fontSize = 13.sp) },
                 modifier = modifier
                     .fillMaxWidth()
-                    .height(60.dp),
+                    .height(54.dp),
+                textStyle = TextStyle(fontSize = 14.sp),
                 trailingIcon = {
-                    IconButton(onClick = { passvisible = !passvisible }) {
-                        Image(
-                            imageVector = if (passvisible)
-                                ImageVector.vectorResource(R.drawable.visibility)
-                            else
-                                ImageVector.vectorResource(R.drawable.visibility_off),
-                            contentDescription = if (passvisible) "Hide password" else "Show password"
-                        )
+                    if (isPassFocused || passField.isNotEmpty()) {
+                        IconButton(onClick = { passvisible = !passvisible }) {
+                            Image(
+                                imageVector = if (passvisible)
+                                    ImageVector.vectorResource(R.drawable.visibility)
+                                else
+                                    ImageVector.vectorResource(R.drawable.visibility_off),
+                                contentDescription = if (passvisible) "Hide password" else "Show password"
+                            )
+                        }
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
@@ -196,7 +204,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 onClick = {},
                 modifier = modifier
                     .fillMaxWidth()
-                    .height(40.dp),
+                    .height(44.dp),
                 colors = ButtonDefaults.buttonColors(colorResource(R.color.orange)),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -208,7 +216,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 )
             }
 
-            Spacer(modifier = modifier.height(18.dp))
+            Spacer(modifier = modifier.height(14.dp))
 
             //Continue with text
             Row(
@@ -231,19 +239,19 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 )
             }
 
-            Spacer(modifier = modifier.height(18.dp))
+            Spacer(modifier = modifier.height(14.dp))
 
             // Google button
             Button(
                 onClick = { },
                 modifier =  modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .height(44.dp)
                     .border(
                         color = colorResource(R.color.orange),
-                        width = 1.dp,
-                        shape = RoundedCornerShape(22.dp)
-                    ),
+                        width = 2.dp,
+                        shape = RoundedCornerShape(22.dp),
+                        ),
                 colors = ButtonDefaults.buttonColors(Color.White)
             ) {
                 Row(
@@ -269,10 +277,11 @@ fun LoginScreen(modifier: Modifier = Modifier) {
             // Sign Up text
             Row (
                 modifier = modifier.padding(bottom = 28.dp),
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
-                    text = "Don't have account?",
+                    text = "Don't have account? ",
                     color = Color.Black,
                     fontSize = 14.sp
                 )
@@ -283,8 +292,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                     Text(
                         text = "Sign up",
                         color = colorResource(R.color.orange),
-                        fontSize = 14.sp,
-                        modifier = modifier.padding(start = 6.dp)
+                        fontSize = 14.sp
                     )
                 }
             }
