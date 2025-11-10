@@ -69,7 +69,7 @@ fun AiChefScreen(navController: NavController, modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.weight(2f))
         Button(
-            onClick = {navController.navigate(OnboardingScreen.DISCOVER_SCREEN)},
+            onClick = {navController.navigate(OnboardingScreen.LOGIN_SCREEN)},
             //navigate to home screen -Yahya
             //navController.navigate()
             modifier = Modifier

@@ -11,6 +11,7 @@ import com.example.moviereviewapp.onboardingscreen.DiscoverScreen
 object OnboardingScreen{
     const val DISCOVER_SCREEN = "discover"
     const val AI_CHEF_SCREEN = "ai_chef"
+    const val LOGIN_SCREEN = "login"
 }
 
 @Composable
@@ -26,6 +27,9 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         }
         composable(OnboardingScreen.AI_CHEF_SCREEN){
             AiChefScreen(navController)
+        }
+        composable(OnboardingScreen.LOGIN_SCREEN){
+            LoginScreen()
         }
     }
 }
