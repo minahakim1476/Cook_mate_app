@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.moviereviewapp.Authentication
 import com.example.moviereviewapp.OnboardingScreen
 import com.example.moviereviewapp.R
 import com.example.moviereviewapp.ui.theme.MovieReviewAppTheme
@@ -69,7 +70,7 @@ fun AiChefScreen(navController: NavController, modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.weight(2f))
         Button(
-            onClick = {navController.navigate(OnboardingScreen.LOGIN_SCREEN)},
+            onClick = {navController.navigate(Authentication.LOGIN_SCREEN)},
             //navigate to home screen -Yahya
             //navController.navigate()
             modifier = Modifier

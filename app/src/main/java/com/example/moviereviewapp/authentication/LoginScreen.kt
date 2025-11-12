@@ -1,10 +1,6 @@
-package com.example.moviereviewapp
+package com.example.moviereviewapp.authentication
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.ReportDrawn
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,31 +10,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
@@ -59,26 +45,14 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.moviereviewapp.ui.theme.MovieReviewAppTheme
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.moviereviewapp.R
+import com.example.moviereviewapp.ui.theme.AppBgColor
 
-class LoginActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            MovieReviewAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LoginScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
+fun LoginScreen(navController: NavController,modifier: Modifier = Modifier) {
 
     var emailField by remember { mutableStateOf("") }
     var passField by remember { mutableStateOf("") }
@@ -142,7 +116,8 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 shape = RoundedCornerShape(12.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true,
-                textStyle = TextStyle(fontSize = 14.sp)
+                textStyle = TextStyle(fontSize = 14.sp , color = Color.Black)
+
             )
 
             Spacer(modifier = modifier.height(18.dp))
@@ -162,7 +137,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 modifier = modifier
                     .fillMaxWidth()
                     .height(54.dp),
-                textStyle = TextStyle(fontSize = 14.sp),
+                textStyle = TextStyle(fontSize = 14.sp , color = Color.Black),
                 trailingIcon = {
                     if (isPassFocused || passField.isNotEmpty()) {
                         IconButton(onClick = { passvisible = !passvisible }) {
@@ -251,8 +226,8 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                         color = colorResource(R.color.orange),
                         width = 2.dp,
                         shape = RoundedCornerShape(22.dp),
-                        ),
-                colors = ButtonDefaults.buttonColors(Color.White)
+                    ),
+                colors = ButtonDefaults.buttonColors(AppBgColor)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -286,7 +261,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                     fontSize = 14.sp
                 )
                 TextButton(
-                    onClick = { },
+                    onClick = {navController.navigate(com.example.moviereviewapp.Authentication.SignUp_Screen) },
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Text(
@@ -303,5 +278,5 @@ fun LoginScreen(modifier: Modifier = Modifier) {
 @Preview(showBackground = true, device = "spec:width=411dp,height=891dp", showSystemUi = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen()
+    LoginScreen(rememberNavController(),)
 }
