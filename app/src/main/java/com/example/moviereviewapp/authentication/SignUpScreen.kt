@@ -1,18 +1,9 @@
 package com.example.moviereviewapp.authentication
 
 
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,19 +11,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,289 +32,271 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.moviereviewapp.R
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.moviereviewapp.ui.theme.AppBgColor
-import com.example.moviereviewapp.ui.theme.MovieReviewAppTheme
-import com.google.api.Authentication
-
+import com.example.moviereviewapp.AppViewModel
+import com.example.moviereviewapp.AuthState
+import com.example.moviereviewapp.Authentication
+import com.example.moviereviewapp.R
+import com.example.moviereviewapp.Routes
 
 
 @Composable
-fun SignupScreen(navController: NavController,modifier: Modifier = Modifier) {
+fun SignUpScreen(
+    navController: NavController,
+    appViewModel: AppViewModel,
+    modifier: Modifier = Modifier
+) {
 
-    var usernameField by remember { mutableStateOf("") }
-    var emailField by remember { mutableStateOf("") }
-    var passField by remember { mutableStateOf("") }
-    var confirmpassField by remember { mutableStateOf("") }
-    var passvisible by remember { mutableStateOf(false) }
-    var isPassFocused by remember { mutableStateOf(false) }
+    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
 
-    Box(
-        modifier = modifier
-            .padding(24.dp)
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val authState = appViewModel.authState.observeAsState()
+
+    // Observe Firebase results
+    LaunchedEffect(authState.value) {
+        when (authState.value) {
+            is AuthState.Authenticated ->
+                navController.navigate(Routes.HOME_ROUTE) { popUpTo(0) }
+
+            is AuthState.Error ->
+                Toast.makeText(
+                    context,
+                    (authState.value as AuthState.Error).message,
+                    Toast.LENGTH_SHORT
+                ).show()
+
+            else -> Unit
+        }
+    }
+
+    Column(
+        modifier = Modifier
             .fillMaxSize()
+            .padding(horizontal = 24.dp, vertical = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(top = 40.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+
+        // Title
+        Text(
+            text = "Create Account",
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            color = colorResource(R.color.orange),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(Modifier.height(28.dp))
+
+        // Username
+        OutlinedTextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Full Name") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Image(
+                    imageVector = ImageVector.vectorResource(R.drawable.outline_account_circle_24),
+                    contentDescription = null
+                )
+            }
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        // Email
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Image(
+                    imageVector = ImageVector.vectorResource(R.drawable.baseline_email_24),
+                    contentDescription = null
+                )
+            }
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        // Password
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Image(
+                    imageVector = ImageVector.vectorResource(R.drawable.baseline_lock_24),
+                    contentDescription = null
+                )
+            },
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Image(
+                        imageVector = if (passwordVisible)
+                            ImageVector.vectorResource(R.drawable.visibility)
+                        else
+                            ImageVector.vectorResource(R.drawable.visibility_off),
+                        contentDescription = null
+                    )
+                }
+            },
+            visualTransformation = if (passwordVisible) VisualTransformation.None
+            else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        // Confirm password
+        OutlinedTextField(
+            value = confirmPassword,
+            onValueChange = { confirmPassword = it },
+            label = { Text("Confirm Password") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Image(
+                    imageVector = ImageVector.vectorResource(R.drawable.baseline_lock_24),
+                    contentDescription = null
+                )
+            },
+            trailingIcon = {
+                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                    Image(
+                        imageVector = if (confirmPasswordVisible)
+                            ImageVector.vectorResource(R.drawable.visibility)
+                        else
+                            ImageVector.vectorResource(R.drawable.visibility_off),
+                        contentDescription = null
+                    )
+                }
+            },
+            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None
+            else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+        )
+
+        Spacer(Modifier.height(24.dp))
+
+        // Sign Up Button
+        Button(
+            onClick = {
+                appViewModel.signup(username , email , password , confirmPassword)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = RoundedCornerShape(14.dp),
+            colors = ButtonDefaults.buttonColors(colorResource(R.color.orange))
         ) {
-
-            // Sign up text
             Text(
-                text = "Sign up",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = modifier.fillMaxWidth(),
-                color = colorResource(R.color.orange)
+                text = "Sign Up",
+                fontSize = 18.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
             )
+        }
 
-            Spacer(modifier = modifier.height(30.dp))
+        Spacer(Modifier.height(24.dp))
 
-
-            // User name text field
-            OutlinedTextField(
-                value = usernameField ,
-                onValueChange = { usernameField = it },
-                leadingIcon = {
-                    Image(
-                        imageVector = ImageVector.vectorResource(R.drawable.outline_account_circle_24),
-                        contentDescription = "Name",
-                        modifier = modifier.size(20.dp)
-                    )
-                },
-                placeholder = { Text("User Name", color = Color.Gray, fontSize = 13.sp) },
-                modifier = modifier
-                    .fillMaxWidth()
-                    .height(54.dp),
-                shape = RoundedCornerShape(12.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                singleLine = true,
-                textStyle = TextStyle(fontSize = 14.sp, color = Color.Black)
+        // Divider
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Divider(Modifier.weight(1f))
+            Text(
+                text = "  OR CONTINUE WITH  ",
+                color = Color.Gray,
+                fontSize = 14.sp
             )
+            Divider(Modifier.weight(1f))
+        }
 
-            Spacer(modifier = modifier.height(18.dp))
+        Spacer(Modifier.height(24.dp))
 
-
-
-            // Email text field
-            OutlinedTextField(
-                value = emailField,
-                onValueChange = { emailField = it },
-                leadingIcon = {
-                    Image(
-                        imageVector = ImageVector.vectorResource(R.drawable.baseline_email_24),
-                        contentDescription = "Email",
-                        modifier = modifier.size(20.dp)
-                    )
-                },
-                placeholder = { Text("Email", color = Color.Gray, fontSize = 13.sp) },
-                modifier = modifier
-                    .fillMaxWidth()
-                    .height(54.dp),
-                shape = RoundedCornerShape(12.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                singleLine = true,
-                textStyle = TextStyle(fontSize = 14.sp, color = Color.Black)
+        // Google button
+        Button(
+            onClick = { /* TODO Google Sign Up */ },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            shape = RoundedCornerShape(28.dp),
+            colors = ButtonDefaults.buttonColors(Color.White),
+            border = ButtonDefaults.outlinedButtonBorder.copy(
+                width = 2.dp,
+                brush = androidx.compose.ui.graphics.SolidColor(colorResource(R.color.orange))
             )
-
-            Spacer(modifier = modifier.height(18.dp))
-
-            // password text field
-            OutlinedTextField(
-                value = passField,
-                onValueChange = { passField = it },
-                leadingIcon = {
-                    Image(
-                        imageVector = ImageVector.vectorResource(R.drawable.baseline_lock_24),
-                        contentDescription = "Password",
-                        modifier = modifier.size(20.dp)
-                    )
-                },
-                placeholder = { Text("Password", color = Color.Gray, fontSize = 13.sp) },
-                modifier = modifier
-                    .fillMaxWidth()
-                    .height(54.dp),
-                textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
-                trailingIcon = {
-                    if (isPassFocused || passField.isNotEmpty()) {
-                        IconButton(onClick = { passvisible = !passvisible }) {
-                            Image(
-                                imageVector = if (passvisible)
-                                    ImageVector.vectorResource(R.drawable.visibility)
-                                else
-                                    ImageVector.vectorResource(R.drawable.visibility_off),
-                                contentDescription = if (passvisible) "Hide password" else "Show password"
-                            )
-                        }
-                    }
-                },
-                shape = RoundedCornerShape(12.dp),
-                visualTransformation = if (passvisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true
-            )
-
-            Spacer(modifier = modifier.height(18.dp))
-
-
-            // confirm password text field
-            OutlinedTextField(
-                value = confirmpassField,
-                onValueChange = { confirmpassField = it },
-                leadingIcon = {
-                    Image(
-                        imageVector = ImageVector.vectorResource(R.drawable.baseline_lock_24),
-                        contentDescription = "Password",
-                        modifier = modifier.size(20.dp)
-                    )
-                },
-                placeholder = { Text("Confirm Password", color = Color.Gray, fontSize = 13.sp) },
-                modifier = modifier
-                    .fillMaxWidth()
-                    .height(54.dp),
-                textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
-                trailingIcon = {
-                    if (isPassFocused || passField.isNotEmpty()) {
-                        IconButton(onClick = { passvisible = !passvisible }) {
-                            Image(
-                                imageVector = if (passvisible)
-                                    ImageVector.vectorResource(R.drawable.visibility)
-                                else
-                                    ImageVector.vectorResource(R.drawable.visibility_off),
-                                contentDescription = if (passvisible) "Hide password" else "Show password"
-                            )
-                        }
-                    }
-                },
-                shape = RoundedCornerShape(12.dp),
-                visualTransformation = if (passvisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true
-            )
-
-            Spacer(modifier = modifier.height(40.dp))
-
-
-
-            //Sign up button
-            Button(
-                onClick = {},
-                modifier = modifier
-                    .fillMaxWidth()
-                    .height(44.dp),
-                colors = ButtonDefaults.buttonColors(colorResource(R.color.orange)),
-                shape = RoundedCornerShape(12.dp)
-            ) {
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(R.drawable.google_logo),
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(Modifier.width(12.dp))
                 Text(
-                    text = "Sign up",
-                    color = Color.White,
-                    fontSize = 18.sp,
+                    "Sign up with Google",
+                    color = colorResource(R.color.orange),
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
             }
+        }
 
-            Spacer(modifier = modifier.height(14.dp))
+        Spacer(Modifier.weight(1f))
 
-            //Continue with text
-            Row(
-                modifier = modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Divider(
-                    modifier = modifier.weight(1f),
-                    color = Color.Gray
-                )
+        // Already have account?
+        Row(
+            modifier = Modifier.padding(bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Already have an account? ", fontSize = 14.sp)
+            TextButton(onClick = {
+                navController.navigate(Authentication.LOGIN_SCREEN) { popUpTo(0) }
+            }) {
                 Text(
-                    text = "Continue With",
-                    modifier = modifier.padding(16.dp),
-                    color = Color.Gray,
-                    fontSize = 14.sp
+                    text = "Log In",
+                    color = colorResource(R.color.orange),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
                 )
-                Divider(
-                    modifier = modifier.weight(1f),
-                    color = Color.Gray
-                )
-            }
-
-            Spacer(modifier = modifier.height(14.dp))
-
-            // Google button
-            Button(
-                onClick = { },
-                modifier =  modifier
-                    .fillMaxWidth()
-                    .height(44.dp)
-                    .border(
-                        color = colorResource(R.color.orange),
-                        width = 2.dp,
-                        shape = RoundedCornerShape(22.dp),
-                    ),
-                colors = ButtonDefaults.buttonColors(AppBgColor)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.google_logo),
-                        contentDescription = "Google",
-                        modifier = modifier.size(38.dp)
-                            .padding(end = 8.dp)
-                    )
-                    Text(
-                        text = "GOOGLE",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = colorResource(R.color.orange)
-                    )
-                }
-            }
-            Spacer(modifier = modifier.weight(1f))
-
-            // Sign Up text
-            Row (
-                modifier = modifier.padding(bottom = 28.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                Text(
-                    text = "Already have an account?",
-                    color = Color.Black,
-                    fontSize = 14.sp
-                )
-                TextButton(
-                    onClick = {navController.navigate(com.example.moviereviewapp.Authentication.LOGIN_SCREEN)},
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Text(
-                        text = "Login",
-                        color = colorResource(R.color.orange),
-                        fontSize = 14.sp
-                    )
-                }
             }
         }
     }
 }
 
+
 @Preview(showBackground = true, device = "spec:width=411dp,height=891dp", showSystemUi = true)
 @Composable
-fun SignupActivityPreview() {
-    SignupScreen(rememberNavController())
+fun SignupPreview() {
+    SignUpScreen(
+        navController = rememberNavController(),
+        modifier = Modifier,
+        appViewModel = TODO()
+    )
 }

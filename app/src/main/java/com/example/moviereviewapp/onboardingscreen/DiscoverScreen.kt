@@ -41,7 +41,7 @@ fun DiscoverScreen(navController: NavController, modifier: Modifier = Modifier) 
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource( R.drawable.onboarding_happy_people),
+            painter = painterResource(R.drawable.onboarding_happy_people),
             contentDescription = stringResource(R.string.onboarding_screen_happy_people),
             modifier = Modifier
                 .fillMaxWidth()
@@ -69,7 +69,7 @@ fun DiscoverScreen(navController: NavController, modifier: Modifier = Modifier) 
         )
         Spacer(modifier = Modifier.weight(2f))
         Button(
-            onClick = {navController.navigate(OnboardingScreen.AI_CHEF_SCREEN)},
+            onClick = { navController.navigate(OnboardingScreen.AI_CHEF_SCREEN) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 32.dp),

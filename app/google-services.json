@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "418612718662",
+    "project_id": "cookmate-b7001",
+    "storage_bucket": "cookmate-b7001.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418612718662:android:73d0bdee27c3de6ec2ae47",
+        "android_client_info": {
+          "package_name": "com.example.moviereviewapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSEioB133UcCsE7xOUSNAE-lG5shNTAKA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

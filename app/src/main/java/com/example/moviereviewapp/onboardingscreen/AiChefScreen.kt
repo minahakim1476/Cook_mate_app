@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.moviereviewapp.Authentication
-import com.example.moviereviewapp.OnboardingScreen
 import com.example.moviereviewapp.R
 import com.example.moviereviewapp.ui.theme.MovieReviewAppTheme
 import com.example.moviereviewapp.ui.theme.Orange
@@ -42,7 +41,7 @@ fun AiChefScreen(navController: NavController, modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource( R.drawable.ai_chef),
+            painter = painterResource(R.drawable.ai_chef),
             contentDescription = stringResource(R.string.onboarding_ai_chef),
             modifier = Modifier
                 .fillMaxWidth()
@@ -70,7 +69,7 @@ fun AiChefScreen(navController: NavController, modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.weight(2f))
         Button(
-            onClick = {navController.navigate(Authentication.LOGIN_SCREEN)},
+            onClick = { navController.navigate(Authentication.LOGIN_SCREEN) { popUpTo(0) } },
             //navigate to home screen -Yahya
             //navController.navigate()
             modifier = Modifier
