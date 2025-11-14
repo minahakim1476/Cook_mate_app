@@ -32,22 +32,24 @@ class AppViewModel : ViewModel() {
     fun login(email: String, password: String) {
 
 
-        if (email.isEmpty() || password.isEmpty()) {
+        if (email.isNotBlank() && password.isNotBlank()) {
+            _authState.value = AuthState.Loading
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        _authState.value = AuthState.Authenticated
+                        Log.d("trace", "UserName: ${auth.currentUser?.displayName}")
+                    } else {
+                        _authState.value =
+                            AuthState.Error(task.exception?.message ?: "Something Went Wrong")
+                    }
+                }
+        }else{
             _authState.value =
-                AuthState.Error("Email or password can't be empty")
+                AuthState.Error("Email and password can't be empty")
         }
 
-        _authState.value = AuthState.Loading
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _authState.value = AuthState.Authenticated
-                    Log.d("trace", "UserName: ${auth.currentUser?.displayName}")
-                } else {
-                    _authState.value =
-                        AuthState.Error(task.exception?.message ?: "Something Went Wrong")
-                }
-            }
+
     }
 
     fun signup(

@@ -19,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -50,6 +51,7 @@ import com.example.moviereviewapp.AuthState
 import com.example.moviereviewapp.Authentication
 import com.example.moviereviewapp.R
 import com.example.moviereviewapp.Routes
+import com.example.moviereviewapp.ui.theme.AppBgColor
 
 
 @Composable
@@ -117,7 +119,12 @@ fun SignUpScreen(
                     imageVector = ImageVector.vectorResource(R.drawable.outline_account_circle_24),
                     contentDescription = null
                 )
-            }
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black
+            )
         )
 
         Spacer(Modifier.height(16.dp))
@@ -135,7 +142,12 @@ fun SignUpScreen(
                     imageVector = ImageVector.vectorResource(R.drawable.baseline_email_24),
                     contentDescription = null
                 )
-            }
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black
+            )
         )
 
         Spacer(Modifier.height(16.dp))
@@ -166,7 +178,12 @@ fun SignUpScreen(
             },
             visualTransformation = if (passwordVisible) VisualTransformation.None
             else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black
+            )
         )
 
         Spacer(Modifier.height(16.dp))
@@ -197,7 +214,12 @@ fun SignUpScreen(
             },
             visualTransformation = if (confirmPasswordVisible) VisualTransformation.None
             else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black
+            )
         )
 
         Spacer(Modifier.height(24.dp))
@@ -246,7 +268,7 @@ fun SignUpScreen(
                 .fillMaxWidth()
                 .height(50.dp),
             shape = RoundedCornerShape(28.dp),
-            colors = ButtonDefaults.buttonColors(Color.White),
+            colors = ButtonDefaults.buttonColors(AppBgColor),
             border = ButtonDefaults.outlinedButtonBorder.copy(
                 width = 2.dp,
                 brush = androidx.compose.ui.graphics.SolidColor(colorResource(R.color.orange))

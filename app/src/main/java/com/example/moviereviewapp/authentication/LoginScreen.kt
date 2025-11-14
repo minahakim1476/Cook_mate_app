@@ -19,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -50,6 +51,7 @@ import com.example.moviereviewapp.AuthState
 import com.example.moviereviewapp.Authentication
 import com.example.moviereviewapp.R
 import com.example.moviereviewapp.Routes
+import com.example.moviereviewapp.ui.theme.AppBgColor
 
 
 @Composable
@@ -123,6 +125,11 @@ fun LoginScreen(
                 )
             },
             singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -155,13 +162,18 @@ fun LoginScreen(
             visualTransformation = if (passwordVisible) VisualTransformation.None
             else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black
+            )
         )
 
         Spacer(Modifier.height(10.dp))
 
         // Forgot password
         TextButton(
-            onClick = { appViewModel.resetPassword(email , context)},
+            onClick = { appViewModel.resetPassword(email, context) },
             modifier = Modifier.align(Alignment.End)
         ) {
             Text(
@@ -217,7 +229,7 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .height(50.dp),
             shape = RoundedCornerShape(28.dp),
-            colors = ButtonDefaults.buttonColors(Color.White),
+            colors = ButtonDefaults.buttonColors(AppBgColor),
             border = ButtonDefaults.outlinedButtonBorder.copy(
                 width = 2.dp,
                 brush = androidx.compose.ui.graphics.SolidColor(colorResource(R.color.orange))
