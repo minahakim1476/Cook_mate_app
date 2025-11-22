@@ -48,6 +48,7 @@ import com.example.moviereviewapp.AppViewModel
 import com.example.moviereviewapp.AuthState
 import com.example.moviereviewapp.Authentication
 import com.example.moviereviewapp.R
+import com.example.moviereviewapp.Settings
 import com.example.moviereviewapp.ui.theme.AppBgColor
 import com.example.moviereviewapp.ui.theme.Black
 import com.example.moviereviewapp.ui.theme.DarkRed
@@ -206,7 +207,7 @@ fun Profile(
                     Settings(
                         ImageVector.vectorResource(R.drawable.person_outline),
                         "Edit Profile",
-                        onClick = {/* Edit profile */ }
+                        onClick = { navController.navigate(Settings.EDIT_PROFILE_SCREEN) }
                     )
 
                     Spacer(Modifier.height(16.dp))
@@ -224,7 +225,7 @@ fun Profile(
                     Settings(
                         ImageVector.vectorResource(R.drawable.outline_shield),
                         "Privacy & Security",
-                        onClick = {/* Privacy & Security */ }
+                        onClick = { navController?.navigate(Settings.PRIVACY_SECURITY_ROUTE) }
                     )
 
                     Spacer(Modifier.height(16.dp))
@@ -232,7 +233,7 @@ fun Profile(
                     Settings(
                         ImageVector.vectorResource(R.drawable.help_support),
                         "Help & Support",
-                        onClick = {/* Help & support */ }
+                        onClick = { navController.navigate(Settings.HELP_SUPPORT_ROUTE) }
                     )
 
                     Spacer(Modifier.height(16.dp))
