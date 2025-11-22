@@ -23,6 +23,10 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Set status bar color
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+
         val appViewModel: AppViewModel by viewModels()
         setContent {
             MovieReviewAppTheme {
@@ -30,7 +34,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     containerColor = AppBgColor
                 ) { innerPadding ->
-                    AppNavHost(Modifier.padding(innerPadding), appViewModel)
+                    AppNavHost(Modifier, appViewModel)
                 }
             }
         }

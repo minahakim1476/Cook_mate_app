@@ -41,9 +41,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.moviereviewapp.AppViewModel
+import com.example.moviereviewapp.AuthState
+import com.example.moviereviewapp.Authentication
+import com.example.moviereviewapp.Routes
+import androidx.compose.ui.unit.dp
 import com.example.moviereviewapp.ui.theme.AppBgColor
 import com.example.moviereviewapp.ui.theme.Black
 
@@ -173,7 +180,6 @@ fun Home(
         }
     }
 }
-
 
 
 @Composable

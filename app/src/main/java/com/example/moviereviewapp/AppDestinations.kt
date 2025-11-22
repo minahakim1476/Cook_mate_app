@@ -2,7 +2,6 @@ package com.example.moviereviewapp
 
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -14,16 +13,14 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -33,10 +30,14 @@ import com.example.moviereviewapp.app_routes.AiChat
 import com.example.moviereviewapp.app_routes.Favorite
 import com.example.moviereviewapp.app_routes.Home
 import com.example.moviereviewapp.app_routes.Profile
+import com.example.moviereviewapp.app_routes.Settings
 import com.example.moviereviewapp.authentication.LoginScreen
 import com.example.moviereviewapp.authentication.SignUpScreen
 import com.example.moviereviewapp.onboardingscreen.AiChefScreen
 import com.example.moviereviewapp.onboardingscreen.DiscoverScreen
+import com.example.moviereviewapp.settings.EditProfile
+import com.example.moviereviewapp.settings.HelpAndSupportScreen
+import com.example.moviereviewapp.settings.PrivacySecurityScreen
 import com.example.moviereviewapp.ui.theme.AppBgColor
 
 object OnboardingScreen {
@@ -49,8 +50,15 @@ object Authentication {
     const val LOGIN_SCREEN = "login"
 }
 
+object Settings {
+    const val EDIT_PROFILE_SCREEN = "EditProfile"
+    const val HELP_SUPPORT_ROUTE = "HelpSupport"
+    const val PRIVACY_SECURITY_ROUTE = "PrivacySecurity"
+}
+
 object Routes {
     const val HOME_ROUTE = "Home"
+    const val PROFILE_ROUTE = "Profile"
 }
 
 @Composable
@@ -81,6 +89,15 @@ fun AppNavHost(
         }
         composable(Routes.HOME_ROUTE) {
             RecipeHomeScreen(modifier, navController, appViewModel)
+        }
+        composable(Settings.EDIT_PROFILE_SCREEN) {
+            EditProfile(navController = navController)
+        }
+        composable(Settings.HELP_SUPPORT_ROUTE) {
+            HelpAndSupportScreen(navController = navController)
+        }
+        composable(Settings.PRIVACY_SECURITY_ROUTE) {
+            PrivacySecurityScreen(navController = navController)
         }
     }
 
