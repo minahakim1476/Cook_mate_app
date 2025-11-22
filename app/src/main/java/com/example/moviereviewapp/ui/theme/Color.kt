@@ -13,4 +13,5 @@ val AppBgColor = Color(0xFFF3F0EA)
 val Orange = Color(0xFFFF5722)
 val White = Color(0xFFFFFFFF)
 val DarkRed = Color(0xFFBD3C3C)
-val Black = Color(0xFF000000)
+val Black = Color(0xFF0000000)
+

@@ -101,7 +101,6 @@ class AppViewModel : ViewModel() {
                 }
         }
 
-
     }
 
     fun resetPassword(email: String, context: Context) {

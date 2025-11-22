@@ -37,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,22 +56,13 @@ import com.example.moviereviewapp.ui.theme.White
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
+
 @Composable
 fun Profile(
     modifier: Modifier = Modifier,
     navController: NavController,
     appViewModel: AppViewModel? = null
 ) {
-
-
-    val authState = appViewModel?.authState?.observeAsState()
-
-    LaunchedEffect(authState?.value) {
-        when (authState?.value) {
-            is AuthState.UnAuthenticated -> navController.navigate(Authentication.LOGIN_SCREEN) { popUpTo(0) }
-            else -> Unit
-        }
-    }
 
     var notificationsEnabled by remember { mutableStateOf(true) }
 
@@ -99,7 +89,23 @@ fun Profile(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(AppBgColor)
     ) {
+
+        val authState = appViewModel?.authState?.observeAsState()
+
+        LaunchedEffect(authState?.value) {
+            when (authState?.value) {
+                is AuthState.UnAuthenticated -> navController.navigate(Authentication.LOGIN_SCREEN) {
+                    popUpTo(
+                        0
+                    )
+                }
+
+                else -> Unit
+            }
+        }
+
         //Header Profile
         Box(
             modifier = Modifier
