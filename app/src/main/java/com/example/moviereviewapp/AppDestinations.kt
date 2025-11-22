@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.moviereviewapp.app_routes.Home
+import com.example.moviereviewapp.app_routes.Profile
 import com.example.moviereviewapp.authentication.LoginScreen
 import com.example.moviereviewapp.authentication.SignUpScreen
 import com.example.moviereviewapp.onboardingscreen.AiChefScreen
@@ -23,6 +24,7 @@ object Authentication {
 
 object Routes {
     const val HOME_ROUTE = "Home"
+    const val PROFILE_ROUTE = "Profile"
 }
 
 @Composable
@@ -52,6 +54,9 @@ fun AppNavHost(
         }
         composable(Routes.HOME_ROUTE) {
             Home(modifier, navController, appViewModel)
+        }
+        composable(Routes.PROFILE_ROUTE) {
+            Profile(modifier, navController, appViewModel)
         }
     }
 }

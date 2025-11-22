@@ -44,7 +44,7 @@ class AppViewModel : ViewModel() {
                             AuthState.Error(task.exception?.message ?: "Something Went Wrong")
                     }
                 }
-        }else{
+        } else {
             _authState.value =
                 AuthState.Error("Email and password can't be empty")
         }
@@ -77,7 +77,23 @@ class AppViewModel : ViewModel() {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        _authState.value = AuthState.Authenticated
+                        // Update user profile with display name
+                        val user = auth.currentUser
+                        val profileUpdates =
+                            com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                                .setDisplayName(userName)
+                                .build()
+
+                        user?.updateProfile(profileUpdates)
+                            ?.addOnCompleteListener { updateTask ->
+                                if (updateTask.isSuccessful) {
+                                    _authState.value = AuthState.Authenticated
+                                    Log.d("trace", "User profile updated with name: $userName")
+                                } else {
+                                    _authState.value =
+                                        AuthState.Authenticated // Still authenticated even if name update fails
+                                }
+                            }
                     } else {
                         _authState.value =
                             AuthState.Error(task.exception?.message ?: "Something Went Wrong")
@@ -88,15 +104,19 @@ class AppViewModel : ViewModel() {
 
     }
 
-    fun resetPassword(email : String,context : Context){
-        if(email.isNotBlank()){
+    fun resetPassword(email: String, context: Context) {
+        if (email.isNotBlank()) {
             Firebase.auth.sendPasswordResetEmail(email)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        Toast.makeText(context, "Check spam section in your email", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            context,
+                            "Check spam section in your email",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
-        }else
+        } else
             Toast.makeText(context, "Email filed can't be empty", Toast.LENGTH_SHORT).show()
     }
 

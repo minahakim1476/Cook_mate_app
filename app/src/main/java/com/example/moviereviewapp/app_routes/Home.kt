@@ -12,11 +12,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.moviereviewapp.AppViewModel
 import com.example.moviereviewapp.AuthState
 import com.example.moviereviewapp.Authentication
+import com.example.moviereviewapp.Routes
 
 @Composable
 fun Home(
@@ -50,6 +53,13 @@ fun Home(
             }
         ) {
             Text("Sign out")
+        }
+        Button(
+            onClick = {
+                navController.navigate(Routes.PROFILE_ROUTE)
+            }
+        ) {
+            Text("Profile")
         }
     }
 }
