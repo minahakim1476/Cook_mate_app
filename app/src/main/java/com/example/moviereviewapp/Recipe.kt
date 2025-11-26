@@ -1,40 +1,29 @@
 package com.example.moviereviewapp
 
 import com.google.firebase.firestore.DocumentId
-import com.google.firebase.firestore.PropertyName
 
 data class Recipe(
     @DocumentId
     val firestoreId: String = "",
 
-    @PropertyName("recipe_name")
-    val recipeName: String = "",
+    val recipe_name: String = "",
 
-    @PropertyName("img_src")
-    val imgSrc: String = "",
+    val img_src: String = "",
 
-    @PropertyName("total_time")
-    val totalTime: String = "",
+    val total_time: String = "",
 
-    @PropertyName("prep_time")
-    val prepTime: String = "",
+    val prep_time: String = "",
 
-    @PropertyName("cook_time")
-    val cookTime: Any? = null,
+    val cook_time: Any? = null,
 
-    @PropertyName("servings")
     val servings: Any? = null,
 
-    @PropertyName("ingredients")
-    val ingredientsRaw: String = "",
+    val ingredients: String = "",
 
-    @PropertyName("directions")
-    val directionsRaw: String = "",
+    val directions: String = "",
 
-    @PropertyName("nutrition")
     val nutrition: String = "",
 
-    @PropertyName("uuid")
     val uuid: String = ""
 ) {
     val calories: String

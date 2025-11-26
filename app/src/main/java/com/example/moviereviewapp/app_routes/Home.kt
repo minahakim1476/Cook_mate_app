@@ -81,7 +81,7 @@ fun Home(
                             Color(0xFFFF6B35),
                             RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
                         )
-                        .statusBarsPadding() // Add padding for status bar
+                        .statusBarsPadding()
                         .padding(24.dp)
                 ) {
                     Column {
@@ -135,7 +135,6 @@ fun Home(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Search Bar
                         TextField(
                             value = "",
                             onValueChange = {},
@@ -187,7 +186,7 @@ fun Home(
                 }
             }
 
-            // ====================== RECIPES =========================
+            // ====================== RECIPES HEADER =========================
             item {
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -202,23 +201,57 @@ fun Home(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
+            // ====================== RECIPES LIST =========================
             when (val state = recipeState) {
                 is RecipeState.Success -> {
-                    items(state.recipes) { recipe ->
-                        RecipeCard(recipe = recipe)
+                    if (state.recipes.isEmpty()) {
+                        item {
+                            Text(
+                                text = "No recipes found",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                color = Color.Gray
+                            )
+                        }
+                    } else {
+                        items(state.recipes) { recipe ->
+                            RecipeCard(recipe)
+                        }
                     }
                 }
 
                 is RecipeState.Error -> {
                     item {
                         Text(
-                            text = state.message,
-                            modifier = Modifier.padding(horizontal = 24.dp)
+                            text = "Error: ${state.message}",
+                            modifier = Modifier.padding(horizontal = 24.dp),
+                            color = Color.Red
                         )
                     }
                 }
 
-                else -> {}
+                is RecipeState.Loading -> {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Loading recipes...")
+                        }
+                    }
+                }
+
+                null -> {
+                    item {
+                        Text(
+                            text = "Initializing...",
+                            modifier = Modifier.padding(horizontal = 24.dp)
+                        )
+                    }
+                }
             }
         }
     }
@@ -263,8 +296,8 @@ fun RecipeCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = recipe.imgSrc,
-                contentDescription = recipe.recipeName,
+                model = recipe.img_src,
+                contentDescription = recipe.recipe_name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(80.dp)
@@ -275,7 +308,7 @@ fun RecipeCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = recipe.recipeName,
+                    text = recipe.recipe_name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2D2D2D)
@@ -294,7 +327,7 @@ fun RecipeCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = recipe.totalTime,
+                        text = recipe.total_time,
                         fontSize = 14.sp,
                         color = Color.Gray
                     )

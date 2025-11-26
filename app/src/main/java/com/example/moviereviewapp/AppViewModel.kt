@@ -10,6 +10,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObject
 
 
 class AppViewModel : ViewModel() {
@@ -33,15 +34,40 @@ class AppViewModel : ViewModel() {
             _authState.value = AuthState.Authenticated
     }
 
-    fun fetchRecipes(){
+    fun fetchRecipes() {
+        Log.d("AppViewModel", "Fetching recipes...")
+
         _recipeState.value = RecipeState.Loading
+
         db.collection("recipes")
             .get()
             .addOnSuccessListener { result ->
-                val recipes = result.toObjects(Recipe::class.java)
-                _recipeState.value = RecipeState.Success(recipes)
+                try {
+                    val recipes = mutableListOf<Recipe>()
+
+                    for (document in result.documents) {
+                        try {
+                            val recipe = document.toObject<Recipe>()
+                            if (recipe != null) {
+                                recipes.add(recipe)
+                            }
+                        } catch (e: Exception) {
+                            Log.e(
+                                "AppViewModel",
+                                "Error parsing document ${document.id}: ${e.message}"
+                            )
+                            // Continue with next document
+                        }
+                    }
+                    _recipeState.value = RecipeState.Success(recipes)
+
+                } catch (e: Exception) {
+                    Log.e("AppViewModel", "Error during parsing: ${e.message}", e)
+                    _recipeState.value = RecipeState.Error("Failed to parse recipes: ${e.message}")
+                }
             }
             .addOnFailureListener { exception ->
+                Log.e("AppViewModel", "FAILURE: ${exception.message}", exception)
                 _recipeState.value = RecipeState.Error(exception.message ?: "Something went wrong")
             }
     }
@@ -149,7 +175,7 @@ sealed class AuthState {
     data class Error(val message: String) : AuthState()
 }
 
-sealed class RecipeState{
+sealed class RecipeState {
     object Loading : RecipeState()
     data class Success(val recipes: List<Recipe>) : RecipeState()
     data class Error(val message: String) : RecipeState()
