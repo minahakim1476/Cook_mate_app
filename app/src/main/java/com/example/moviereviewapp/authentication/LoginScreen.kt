@@ -124,6 +124,7 @@ fun LoginScreen(
                     contentDescription = null
                 )
             },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.Black,

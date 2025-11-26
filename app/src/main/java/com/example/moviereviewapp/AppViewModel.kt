@@ -9,17 +9,21 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 
 
 class AppViewModel : ViewModel() {
     private val auth: FirebaseAuth = Firebase.auth
-
+    private val db = Firebase.firestore
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
 
+    private val _recipeState = MutableLiveData<RecipeState>()
+    val recipeState: LiveData<RecipeState> = _recipeState
 
     init {
         checkAuthState()
+        fetchRecipes()
     }
 
     fun checkAuthState() {
@@ -27,6 +31,19 @@ class AppViewModel : ViewModel() {
             _authState.value = AuthState.UnAuthenticated
         else
             _authState.value = AuthState.Authenticated
+    }
+
+    fun fetchRecipes(){
+        _recipeState.value = RecipeState.Loading
+        db.collection("recipes")
+            .get()
+            .addOnSuccessListener { result ->
+                val recipes = result.toObjects(Recipe::class.java)
+                _recipeState.value = RecipeState.Success(recipes)
+            }
+            .addOnFailureListener { exception ->
+                _recipeState.value = RecipeState.Error(exception.message ?: "Something went wrong")
+            }
     }
 
     fun login(email: String, password: String) {
@@ -130,4 +147,10 @@ sealed class AuthState {
     object UnAuthenticated : AuthState()
     object Loading : AuthState()
     data class Error(val message: String) : AuthState()
+}
+
+sealed class RecipeState{
+    object Loading : RecipeState()
+    data class Success(val recipes: List<Recipe>) : RecipeState()
+    data class Error(val message: String) : RecipeState()
 }
