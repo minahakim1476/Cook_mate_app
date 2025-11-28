@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -74,6 +75,7 @@ fun RecipeRoute(
         is SingleRecipeState.Success -> {
             RecipeScreen(
                 recipe = currentState.recipe,
+                appViewModel = appViewModel,
                 onBack = { navController.popBackStack() }
             )
         }
@@ -99,9 +101,18 @@ fun RecipeRoute(
 
 
 @Composable
-fun RecipeScreen(recipe: Recipe, onBack: () -> Unit) {
-    // **Note: Favorite state should be managed**
-    val isFavorite by remember { mutableStateOf(false) }
+fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit) {
+    // Observe favorites from ViewModel
+    val favorites by appViewModel.favoriteRecipes.observeAsState(emptyList())
+
+    // Keep favorites up-to-date when the screen appears
+    LaunchedEffect(recipe) {
+        appViewModel.fetchFavorites()
+    }
+
+    val isFavorite by remember(recipe, favorites) { derivedStateOf {
+        favorites.any { it.uuid.isNotBlank() && it.uuid == recipe.uuid || (it.firestoreId.isNotBlank() && it.firestoreId == recipe.firestoreId) }
+    } }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -109,11 +120,24 @@ fun RecipeScreen(recipe: Recipe, onBack: () -> Unit) {
         // ======================== Top Image, Back and Favorite Buttons ===========================
         item {
             RecipeImageSection(
-                imageUrl = recipe.img_src,
-                onBackClick = onBack,
-                onFavoriteClick = { /* TODO: Implement favorite toggle in ViewModel */ },
-                isFavorite = isFavorite
-            )
+                    imageUrl = recipe.img_src,
+                    onBackClick = onBack,
+                    onFavoriteClick = {
+                        // Toggle favorite
+                        val docId = when {
+                            recipe.uuid.isNotBlank() -> recipe.uuid
+                            recipe.firestoreId.isNotBlank() -> recipe.firestoreId
+                            else -> recipe.uuid // fallback (likely blank)
+                        }
+
+                        if (!isFavorite) {
+                            appViewModel.addFavorite(recipe)
+                        } else {
+                            if (docId.isNotBlank()) appViewModel.removeFavorite(docId)
+                        }
+                    },
+                    isFavorite = isFavorite
+                )
         }
         // ========================  Recipe Header and Metadata ===========================
         item {

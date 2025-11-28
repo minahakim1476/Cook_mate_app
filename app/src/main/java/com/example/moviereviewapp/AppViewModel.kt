@@ -31,6 +31,10 @@ class AppViewModel : ViewModel() {
     private val _singleRecipeState = MutableLiveData<SingleRecipeState>()
     val singleRecipeState: LiveData<SingleRecipeState> = _singleRecipeState
 
+    // Favorites
+    private val _favoriteRecipes = MutableLiveData<List<Recipe>>(emptyList())
+    val favoriteRecipes: LiveData<List<Recipe>> = _favoriteRecipes
+
     init {
         checkAuthState()
         fetchRecipes()
@@ -104,6 +108,83 @@ class AppViewModel : ViewModel() {
             .addOnFailureListener { exception ->
                 Log.e("AppViewModel", "FAILURE: ${exception.message}", exception)
                 _recipeState.value = RecipeState.Error(exception.message ?: "Something went wrong")
+            }
+    }
+
+    /** Favorites management **/
+    fun addFavorite(recipe: Recipe) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            Log.w("AppViewModel", "addFavorite: user not authenticated")
+            return
+        }
+
+        // Use recipe.uuid if available, otherwise fallback to firestoreId or auto-generated id
+        val docId = when {
+            recipe.uuid.isNotBlank() -> recipe.uuid
+            recipe.firestoreId.isNotBlank() -> recipe.firestoreId
+            else -> null
+        }
+
+        val favoriteRef = if (docId != null) {
+            db.collection("users").document(userId).collection("favorites").document(docId)
+        } else {
+            db.collection("users").document(userId).collection("favorites").document()
+        }
+
+        favoriteRef.set(recipe)
+            .addOnSuccessListener {
+                Log.d("AppViewModel", "Added to favorites: ${recipe.recipe_name}")
+                // Refresh favorites after adding
+                fetchFavorites()
+            }
+            .addOnFailureListener { e ->
+                Log.e("AppViewModel", "Failed to add favorite: ${e.message}", e)
+            }
+    }
+
+    fun removeFavorite(recipeId: String) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            Log.w("AppViewModel", "removeFavorite: user not authenticated")
+            return
+        }
+
+        db.collection("users").document(userId).collection("favorites")
+            .document(recipeId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("AppViewModel", "Removed favorite: $recipeId")
+                fetchFavorites()
+            }
+            .addOnFailureListener { e ->
+                Log.e("AppViewModel", "Failed to remove favorite: ${e.message}", e)
+            }
+    }
+
+    fun fetchFavorites() {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            Log.w("AppViewModel", "fetchFavorites: user not authenticated")
+            _favoriteRecipes.value = emptyList()
+            return
+        }
+
+        db.collection("users").document(userId).collection("favorites")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                try {
+                    val favorites = snapshot.toObjects(Recipe::class.java)
+                    _favoriteRecipes.value = favorites
+                    Log.d("AppViewModel", "Fetched ${favorites.size} favorites")
+                } catch (e: Exception) {
+                    Log.e("AppViewModel", "Error parsing favorites: ${e.message}", e)
+                    _favoriteRecipes.value = emptyList()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("AppViewModel", "Failed to fetch favorites: ${e.message}", e)
+                _favoriteRecipes.value = emptyList()
             }
     }
 
