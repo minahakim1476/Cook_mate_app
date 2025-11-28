@@ -30,15 +30,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -47,10 +45,9 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.moviereviewapp.AppViewModel
+import com.example.moviereviewapp.R
 import com.example.moviereviewapp.Recipe
 import com.example.moviereviewapp.SingleRecipeState
-import com.example.moviereviewapp.R
-import androidx.compose.ui.res.colorResource
 
 
 @Composable
@@ -72,6 +69,7 @@ fun RecipeRoute(
                 CircularProgressIndicator()
             }
         }
+
         is SingleRecipeState.Success -> {
             RecipeScreen(
                 recipe = currentState.recipe,
@@ -79,6 +77,7 @@ fun RecipeRoute(
                 onBack = { navController.popBackStack() }
             )
         }
+
         is SingleRecipeState.Error -> {
             Column(
                 modifier = Modifier
@@ -99,20 +98,15 @@ fun RecipeRoute(
 }
 
 
-
 @Composable
 fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit) {
-    // Observe favorites from ViewModel
+    // FIXED: Use favoriteRecipes to get the Set of favorite IDs
     val favorites by appViewModel.favoriteRecipes.observeAsState(emptyList())
 
-    // Keep favorites up-to-date when the screen appears
-    LaunchedEffect(recipe) {
-        appViewModel.fetchFavorites()
+    // FIXED: Simple check - is THIS recipe's ID in the favorites list?
+    val isFavorite = favorites.any {
+        it.firestoreId == recipe.firestoreId && recipe.firestoreId.isNotBlank()
     }
-
-    val isFavorite by remember(recipe, favorites) { derivedStateOf {
-        favorites.any { it.uuid.isNotBlank() && it.uuid == recipe.uuid || (it.firestoreId.isNotBlank() && it.firestoreId == recipe.firestoreId) }
-    } }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -120,24 +114,17 @@ fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit)
         // ======================== Top Image, Back and Favorite Buttons ===========================
         item {
             RecipeImageSection(
-                    imageUrl = recipe.img_src,
-                    onBackClick = onBack,
-                    onFavoriteClick = {
-                        // Toggle favorite
-                        val docId = when {
-                            recipe.uuid.isNotBlank() -> recipe.uuid
-                            recipe.firestoreId.isNotBlank() -> recipe.firestoreId
-                            else -> recipe.uuid // fallback (likely blank)
-                        }
-
-                        if (!isFavorite) {
-                            appViewModel.addFavorite(recipe)
-                        } else {
-                            if (docId.isNotBlank()) appViewModel.removeFavorite(docId)
-                        }
-                    },
-                    isFavorite = isFavorite
-                )
+                imageUrl = recipe.img_src,
+                onBackClick = onBack,
+                onFavoriteClick = {
+                    if (isFavorite) {
+                        appViewModel.removeFavorite(recipe.firestoreId)
+                    } else {
+                        appViewModel.addFavorite(recipe)
+                    }
+                },
+                isFavorite = isFavorite
+            )
         }
         // ========================  Recipe Header and Metadata ===========================
         item {
@@ -266,8 +253,6 @@ fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit)
 }
 
 
-
-
 @Composable
 fun RecipeImageSection(
     imageUrl: String,
@@ -326,8 +311,8 @@ fun RecipeImageSection(
                 )
             }
         }
-        }
     }
+}
 
 
 @Composable

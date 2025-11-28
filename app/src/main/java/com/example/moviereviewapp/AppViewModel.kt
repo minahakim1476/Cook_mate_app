@@ -31,13 +31,18 @@ class AppViewModel : ViewModel() {
     private val _singleRecipeState = MutableLiveData<SingleRecipeState>()
     val singleRecipeState: LiveData<SingleRecipeState> = _singleRecipeState
 
-    // Favorites
+    // FIXED: Add favoritesState to track IDs
+    private val _favoritesState = MutableLiveData<Set<String>>(emptySet())
+    val favoritesState: LiveData<Set<String>> = _favoritesState
+
+    // Favorites recipes list
     private val _favoriteRecipes = MutableLiveData<List<Recipe>>(emptyList())
     val favoriteRecipes: LiveData<List<Recipe>> = _favoriteRecipes
 
     init {
         checkAuthState()
         fetchRecipes()
+        fetchFavorites()
     }
 
     fun fetchRecipeById(recipeId: String) {
@@ -95,7 +100,6 @@ class AppViewModel : ViewModel() {
                                 "AppViewModel",
                                 "Error parsing document ${document.id}: ${e.message}"
                             )
-                            // Continue with next document
                         }
                     }
                     _recipeState.value = RecipeState.Success(recipes)
@@ -119,23 +123,21 @@ class AppViewModel : ViewModel() {
             return
         }
 
-        // Use recipe.uuid if available, otherwise fallback to firestoreId or auto-generated id
-        val docId = when {
-            recipe.uuid.isNotBlank() -> recipe.uuid
-            recipe.firestoreId.isNotBlank() -> recipe.firestoreId
-            else -> null
+        // Always use firestoreId as the document ID
+        val docId = recipe.firestoreId
+
+        if (docId.isBlank()) {
+            Log.e("AppViewModel", "Cannot add favorite: recipe has no firestoreId")
+            return
         }
 
-        val favoriteRef = if (docId != null) {
-            db.collection("users").document(userId).collection("favorites").document(docId)
-        } else {
-            db.collection("users").document(userId).collection("favorites").document()
-        }
-
-        favoriteRef.set(recipe)
+        db.collection("users")
+            .document(userId)
+            .collection("favorites")
+            .document(docId)
+            .set(recipe)
             .addOnSuccessListener {
                 Log.d("AppViewModel", "Added to favorites: ${recipe.recipe_name}")
-                // Refresh favorites after adding
                 fetchFavorites()
             }
             .addOnFailureListener { e ->
@@ -150,7 +152,14 @@ class AppViewModel : ViewModel() {
             return
         }
 
-        db.collection("users").document(userId).collection("favorites")
+        if (recipeId.isBlank()) {
+            Log.e("AppViewModel", "Cannot remove favorite: recipeId is blank")
+            return
+        }
+
+        db.collection("users")
+            .document(userId)
+            .collection("favorites")
             .document(recipeId)
             .delete()
             .addOnSuccessListener {
@@ -167,36 +176,51 @@ class AppViewModel : ViewModel() {
         if (userId == null) {
             Log.w("AppViewModel", "fetchFavorites: user not authenticated")
             _favoriteRecipes.value = emptyList()
+            _favoritesState.value = emptySet()
             return
         }
 
-        db.collection("users").document(userId).collection("favorites")
-            .get()
-            .addOnSuccessListener { snapshot ->
+        db.collection("users")
+            .document(userId)
+            .collection("favorites")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("AppViewModel", "Failed to fetch favorites: ${error.message}", error)
+                    _favoriteRecipes.value = emptyList()
+                    _favoritesState.value = emptySet()
+                    return@addSnapshotListener
+                }
+
                 try {
-                    val favorites = snapshot.toObjects(Recipe::class.java)
+                    val favorites = snapshot?.toObjects(Recipe::class.java) ?: emptyList()
                     _favoriteRecipes.value = favorites
+
+                    // FIXED: Also update the Set of IDs
+                    val favoriteIds = favorites.map { it.firestoreId }.toSet()
+                    _favoritesState.value = favoriteIds
+
                     Log.d("AppViewModel", "Fetched ${favorites.size} favorites")
                 } catch (e: Exception) {
                     Log.e("AppViewModel", "Error parsing favorites: ${e.message}", e)
                     _favoriteRecipes.value = emptyList()
+                    _favoritesState.value = emptySet()
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.e("AppViewModel", "Failed to fetch favorites: ${e.message}", e)
-                _favoriteRecipes.value = emptyList()
             }
     }
 
+    // FIXED: Add isFavorite helper function
+    fun isFavorite(recipeId: String): Boolean {
+        return _favoritesState.value?.contains(recipeId) == true
+    }
+
     fun login(email: String, password: String) {
-
-
         if (email.isNotBlank() && password.isNotBlank()) {
             _authState.value = AuthState.Loading
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         _authState.value = AuthState.Authenticated
+                        fetchFavorites()
                         Log.d("trace", "UserName: ${auth.currentUser?.displayName}")
                     } else {
                         _authState.value =
@@ -207,8 +231,6 @@ class AppViewModel : ViewModel() {
             _authState.value =
                 AuthState.Error("Email and password can't be empty")
         }
-
-
     }
 
     fun signup(
@@ -217,7 +239,6 @@ class AppViewModel : ViewModel() {
         password: String,
         confirmPassword: String
     ) {
-
         if (email.isEmpty() ||
             password.isEmpty() ||
             userName.isEmpty() ||
@@ -236,7 +257,6 @@ class AppViewModel : ViewModel() {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        // Update user profile with display name
                         val user = auth.currentUser
                         val profileUpdates =
                             com.google.firebase.auth.UserProfileChangeRequest.Builder()
@@ -247,10 +267,10 @@ class AppViewModel : ViewModel() {
                             ?.addOnCompleteListener { updateTask ->
                                 if (updateTask.isSuccessful) {
                                     _authState.value = AuthState.Authenticated
+                                    fetchFavorites()
                                     Log.d("trace", "User profile updated with name: $userName")
                                 } else {
-                                    _authState.value =
-                                        AuthState.Authenticated // Still authenticated even if name update fails
+                                    _authState.value = AuthState.Authenticated
                                 }
                             }
                     } else {
@@ -259,7 +279,6 @@ class AppViewModel : ViewModel() {
                     }
                 }
         }
-
     }
 
     fun resetPassword(email: String, context: Context) {
@@ -281,6 +300,8 @@ class AppViewModel : ViewModel() {
     fun signout() {
         auth.signOut()
         _authState.value = AuthState.UnAuthenticated
+        _favoriteRecipes.value = emptyList()
+        _favoritesState.value = emptySet()
     }
 }
 
