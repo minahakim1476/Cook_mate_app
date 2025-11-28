@@ -206,7 +206,7 @@ fun RecipeHomeScreen(
             }
 
             2 -> {
-                Favorite(modifier)
+                Favorite(appViewModel = appViewModel, modifier = modifier)
             }
 
             3 -> {
