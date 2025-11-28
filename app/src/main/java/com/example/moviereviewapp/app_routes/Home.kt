@@ -47,9 +47,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.moviereviewapp.AppViewModel
 import com.example.moviereviewapp.Recipe
+import com.example.moviereviewapp.RecipeNavigation
 import com.example.moviereviewapp.RecipeState
 import com.example.moviereviewapp.ui.theme.AppBgColor
 import com.example.moviereviewapp.ui.theme.Black
@@ -58,7 +60,8 @@ import com.example.moviereviewapp.ui.theme.Black
 @Composable
 fun Home(
     modifier: Modifier = Modifier,
-    appViewModel: AppViewModel
+    appViewModel: AppViewModel,
+    navController: NavController
 ) {
     val recipeState by appViewModel.recipeState.observeAsState()
     val isRefreshing = recipeState is RecipeState.Loading
@@ -216,7 +219,10 @@ fun Home(
                         }
                     } else {
                         items(state.recipes) { recipe ->
-                            RecipeCard(recipe)
+                            RecipeCard(recipe = recipe,
+                                onRecipeClick = { recipeId ->
+                                    navController.navigate(RecipeNavigation.recipeRoute(recipeId))
+                                })
                         }
                     }
                 }
@@ -277,9 +283,13 @@ fun CategoryChip(text: String) {
 
 @Composable
 fun RecipeCard(
-    recipe: Recipe
+    recipe: Recipe,
+    onRecipeClick: (String) -> Unit
 ) {
     Card(
+        onClick = {
+            onRecipeClick(recipe.firestoreId)
+        },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 8.dp),

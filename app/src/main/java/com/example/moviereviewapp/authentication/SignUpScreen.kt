@@ -102,10 +102,12 @@ fun SignUpScreen(
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             color = colorResource(R.color.orange),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
         )
 
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(14.dp))
 
         // Username
         OutlinedTextField(

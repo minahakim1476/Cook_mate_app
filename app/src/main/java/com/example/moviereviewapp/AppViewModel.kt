@@ -13,6 +13,12 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
 
 
+sealed class SingleRecipeState {
+    data object Loading : SingleRecipeState()
+    data class Success(val recipe: Recipe) : SingleRecipeState()
+    data class Error(val message: String) : SingleRecipeState()
+}
+
 class AppViewModel : ViewModel() {
     private val auth: FirebaseAuth = Firebase.auth
     private val db = Firebase.firestore
@@ -22,9 +28,38 @@ class AppViewModel : ViewModel() {
     private val _recipeState = MutableLiveData<RecipeState>()
     val recipeState: LiveData<RecipeState> = _recipeState
 
+    private val _singleRecipeState = MutableLiveData<SingleRecipeState>()
+    val singleRecipeState: LiveData<SingleRecipeState> = _singleRecipeState
+
     init {
         checkAuthState()
         fetchRecipes()
+    }
+
+    fun fetchRecipeById(recipeId: String) {
+        Log.d("AppViewModel", "Fetching single recipe with ID: $recipeId")
+
+        _singleRecipeState.value = SingleRecipeState.Loading
+
+        db.collection("recipes")
+            .document(recipeId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val recipe = document.toObject<Recipe>()
+                    if (recipe != null) {
+                        _singleRecipeState.value = SingleRecipeState.Success(recipe)
+                    } else {
+                        _singleRecipeState.value = SingleRecipeState.Error("Recipe data is invalid or incomplete.")
+                    }
+                } else {
+                    _singleRecipeState.value = SingleRecipeState.Error("Recipe not found.")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("AppViewModel", "Failed to fetch recipe $recipeId: ${exception.message}", exception)
+                _singleRecipeState.value = SingleRecipeState.Error("Network error: ${exception.message}")
+            }
     }
 
     fun checkAuthState() {

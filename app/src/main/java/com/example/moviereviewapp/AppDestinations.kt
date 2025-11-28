@@ -24,9 +24,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.moviereviewapp.app_routes.AiChat
 import com.example.moviereviewapp.app_routes.Favorite
 import com.example.moviereviewapp.app_routes.Home
@@ -40,6 +42,7 @@ import com.example.moviereviewapp.settings.EditProfile
 import com.example.moviereviewapp.settings.HelpAndSupportScreen
 import com.example.moviereviewapp.settings.PrivacySecurityScreen
 import com.example.moviereviewapp.ui.theme.AppBgColor
+import com.example.moviereviewapp.app_routes.RecipeRoute
 
 object OnboardingScreen {
     const val DISCOVER_SCREEN = "discover"
@@ -60,6 +63,14 @@ object Settings {
 object Routes {
     const val HOME_ROUTE = "Home"
     const val PROFILE_ROUTE = "Profile"
+}
+object RecipeNavigation {
+    const val RECIPE_ROUTE = "recipe"
+    const val RECIPE_ID_KEY = "recipeId"
+    const val RECIPE_ROUTE_WITH_ARGS = "$RECIPE_ROUTE/{$RECIPE_ID_KEY}"
+    fun recipeRoute(recipeId: String): String {
+        return "$RECIPE_ROUTE/$recipeId"
+    }
 }
 
 @Composable
@@ -100,8 +111,25 @@ fun AppNavHost(
         composable(Settings.PRIVACY_SECURITY_ROUTE) {
             PrivacySecurityScreen(navController = navController)
         }
-    }
+        composable(
+            route = RecipeNavigation.RECIPE_ROUTE_WITH_ARGS,
+            arguments = listOf(
+                navArgument(RecipeNavigation.RECIPE_ID_KEY) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val recipeId = backStackEntry.arguments?.getString(RecipeNavigation.RECIPE_ID_KEY)
 
+            if (recipeId != null) {
+                RecipeRoute(
+                    recipeId = recipeId,
+                    appViewModel = appViewModel,
+                    navController = navController
+                )
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -170,7 +198,7 @@ fun RecipeHomeScreen(
     ) { paddingValues ->
         when (selectedItem) {
             0 -> {
-                Home(modifier, appViewModel)
+                Home(modifier, appViewModel, navController)
             }
 
             1 -> {
