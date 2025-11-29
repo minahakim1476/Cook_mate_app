@@ -10,6 +10,27 @@ android {
     namespace = "com.example.moviereviewapp"
     compileSdk = 36
 
+    testOptions {
+        unitTests {
+            // REQUIRED: Include Android resources in unit tests
+            isIncludeAndroidResources = true
+            // Allow Robolectric to work
+            isReturnDefaultValues = true
+        }
+        // Disable animations for faster testing
+        animationsDisabled = true
+    }
+
+    // REQUIRED: Packaging options to avoid conflicts
+    packagingOptions {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/LICENSE-notice.md"
+            excludes += "META-INF/DEPENDENCIES"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.moviereviewapp"
         minSdk = 29
@@ -82,4 +103,43 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation("androidx.core:core-ktx:1.12.0")
+
+    // JUnit 4 for unit tests
+    testImplementation("junit:junit:4.13.2")
+
+    // AndroidX Test - Core and Runner
+    androidTestImplementation("androidx.test:core:1.5.0")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+
+    // Espresso for UI testing
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // Compose Testing
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.5.4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.5.4")
+
+    // MockK for mocking
+    testImplementation("io.mockk:mockk:1.13.8")
+    androidTestImplementation("io.mockk:mockk-android:1.13.8")
+
+    // Coroutines Test
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+    // Architecture Components Testing
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
+
+    // Truth for assertions (optional but recommended)
+    testImplementation("com.google.truth:truth:1.1.5")
+    androidTestImplementation("com.google.truth:truth:1.1.5")
+
+    // Turbine for testing Flows (optional)
+    testImplementation("app.cash.turbine:turbine:1.0.0")
+
+    // Robolectric for unit tests that need Android framework (optional)
+    testImplementation("org.robolectric:robolectric:4.11.1")
+
 }
