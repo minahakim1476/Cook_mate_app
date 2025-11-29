@@ -142,7 +142,6 @@ fun Favorite(appViewModel: AppViewModel, modifier: Modifier = Modifier) {
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(text = recipe.total_time.ifBlank { "—" }, color = Color.Gray, fontSize = 12.sp)
                                 Spacer(modifier = Modifier.width(12.dp))
-                                Text(text = recipe.calories.ifBlank { "— kcal" }, color = Color.Gray, fontSize = 12.sp)
                             }
                         }
 
@@ -150,8 +149,8 @@ fun Favorite(appViewModel: AppViewModel, modifier: Modifier = Modifier) {
                             onClick = {
 
                                 val docId = when {
-                                    recipe.uuid.isNotBlank() -> recipe.uuid
                                     recipe.firestoreId.isNotBlank() -> recipe.firestoreId
+                                    recipe.uuid.isNotBlank() -> recipe.uuid
                                     else -> ""
                                 }
                                 if (docId.isNotBlank()) {
