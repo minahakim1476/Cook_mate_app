@@ -36,9 +36,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.moviereviewapp.AppViewModel
+import com.example.moviereviewapp.Recipe
+import com.example.moviereviewapp.RecipeNavigation
 import com.example.moviereviewapp.ui.theme.AppBgColor
 import com.example.moviereviewapp.ui.theme.Orange
 import com.example.moviereviewapp.ui.theme.White
@@ -47,7 +50,11 @@ import com.example.moviereviewapp.ui.theme.White
 
 
 @Composable
-fun Favorite(appViewModel: AppViewModel, modifier: Modifier = Modifier) {
+fun Favorite(
+    appViewModel: AppViewModel,
+    modifier: Modifier = Modifier,
+    navController: NavController
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -87,90 +94,102 @@ fun Favorite(appViewModel: AppViewModel, modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(favorites) { recipe ->
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Image (use Coil AsyncImage when URL is present)
-                        val context = LocalContext.current
-                        if (recipe.img_src.isNotBlank()) {
-                            AsyncImage(
-                                model = ImageRequest.Builder(context)
-                                    .data(recipe.img_src)
-                                    .crossfade(true)
-                                    .build(),
-                                contentDescription = recipe.recipe_name,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(84.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                            )
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .size(84.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(Color.LightGray)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = recipe.recipe_name,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color.Black
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                // Time and kcal (guard against null)
-                                
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(text = recipe.total_time.ifBlank { "—" }, color = Color.Gray, fontSize = 12.sp)
-                                Spacer(modifier = Modifier.width(12.dp))
-                            }
-                        }
-
-                        IconButton(
-                            onClick = {
-
-                                val docId = when {
-                                    recipe.firestoreId.isNotBlank() -> recipe.firestoreId
-                                    recipe.uuid.isNotBlank() -> recipe.uuid
-                                    else -> ""
-                                }
-                                if (docId.isNotBlank()) {
-                                    appViewModel.removeFavorite(docId)
-                                }
-                            },
-                            modifier = Modifier.align(Alignment.Top)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Remove favorite",
-                                tint = Orange,
-                                modifier = Modifier.size(22.dp)
-                            )
-                        }
-                    }
+                RecipeCard(recipe,appViewModel) { recipeId ->
+                    navController.navigate(RecipeNavigation.recipeRoute(recipeId))
                 }
             }
         }
         
+    }
+}
+
+@Composable
+fun RecipeCard(
+    recipe: Recipe,
+    appViewModel: AppViewModel,
+    onRecipeClick: (String) -> Unit
+) {
+    Card(
+        onClick = {onRecipeClick(recipe.firestoreId)},
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Image (use Coil AsyncImage when URL is present)
+            val context = LocalContext.current
+            if (recipe.img_src.isNotBlank()) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(recipe.img_src)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = recipe.recipe_name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(84.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(84.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.LightGray)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = recipe.recipe_name,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Time and kcal (guard against null)
+
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(text = recipe.total_time.ifBlank { "—" }, color = Color.Gray, fontSize = 12.sp)
+                    Spacer(modifier = Modifier.width(12.dp))
+                }
+            }
+
+            IconButton(
+                onClick = {
+
+                    val docId = when {
+                        recipe.firestoreId.isNotBlank() -> recipe.firestoreId
+                        recipe.uuid.isNotBlank() -> recipe.uuid
+                        else -> ""
+                    }
+                    if (docId.isNotBlank()) {
+                        appViewModel.removeFavorite(docId)
+                    }
+                },
+                modifier = Modifier.align(Alignment.Top)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Remove favorite",
+                    tint = Orange,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+        }
     }
 }
 

@@ -206,7 +206,7 @@ fun RecipeHomeScreen(
             }
 
             2 -> {
-                Favorite(appViewModel = appViewModel, modifier = modifier)
+                Favorite(appViewModel = appViewModel, modifier = modifier, navController)
             }
 
             3 -> {
