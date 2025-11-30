@@ -4,6 +4,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.lifecycle.MutableLiveData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.moviereviewapp.app_routes.RecipeRoute
 import com.example.moviereviewapp.ui.theme.MovieReviewAppTheme
@@ -20,7 +21,8 @@ import org.junit.runner.RunWith
  * These tests verify that multiple components work together correctly.
  * They test user workflows from start to finish.
  *
- * To run: ./gradlew connectedAndroidTest
+ * Fix applied: Mocked LiveData replaced with real MutableLiveData instances
+ * to support observeAsState() initialization checks.
  */
 @RunWith(AndroidJUnit4::class)
 class RecipeIntegrationTest {
@@ -32,6 +34,7 @@ class RecipeIntegrationTest {
 
     @Before
     fun setup() {
+        // We use relaxed=true to avoid mocking every single void method call
         mockViewModel = mockk(relaxed = true)
     }
 
@@ -44,18 +47,18 @@ class RecipeIntegrationTest {
             img_src = "https://example.com/carbonara.jpg",
             total_time = "30 mins",
             prep_time = "10 mins",
-            servings = "4",
+            servings = "5",
             ingredients = "400g spaghetti, 200g bacon, 4 eggs, 100g parmesan",
             directions = "Boil pasta\nCook bacon\nMix eggs with cheese\nCombine all",
             nutrition = "Calories: 650, Protein: 30g, Fat: 35g"
         )
 
-        every { mockViewModel.singleRecipeState } returns mockk {
-            every { value } returns SingleRecipeState.Success(testRecipe)
-        }
-        every { mockViewModel.favoriteRecipes } returns mockk {
-            every { value } returns emptyList()
-        }
+        // FIX: Use real MutableLiveData
+        val recipeState = MutableLiveData<SingleRecipeState>(SingleRecipeState.Success(testRecipe))
+        every { mockViewModel.singleRecipeState } returns recipeState
+
+        val favoritesState = MutableLiveData<List<Recipe>>(emptyList())
+        every { mockViewModel.favoriteRecipes } returns favoritesState
 
         // When
         composeTestRule.setContent {
@@ -86,12 +89,12 @@ class RecipeIntegrationTest {
             directions = "Step 1"
         )
 
-        every { mockViewModel.singleRecipeState } returns mockk {
-            every { value } returns SingleRecipeState.Success(testRecipe)
-        }
-        every { mockViewModel.favoriteRecipes } returns mockk {
-            every { value } returns emptyList()
-        }
+        // FIX: Use real MutableLiveData
+        val recipeState = MutableLiveData<SingleRecipeState>(SingleRecipeState.Success(testRecipe))
+        every { mockViewModel.singleRecipeState } returns recipeState
+
+        val favoritesState = MutableLiveData<List<Recipe>>(emptyList())
+        every { mockViewModel.favoriteRecipes } returns favoritesState
 
         // When
         composeTestRule.setContent {
@@ -123,12 +126,12 @@ class RecipeIntegrationTest {
             directions = "Preheat oven\nMix ingredients\nBake for 30 minutes"
         )
 
-        every { mockViewModel.singleRecipeState } returns mockk {
-            every { value } returns SingleRecipeState.Success(testRecipe)
-        }
-        every { mockViewModel.favoriteRecipes } returns mockk {
-            every { value } returns emptyList()
-        }
+        // FIX: Use real MutableLiveData
+        val recipeState = MutableLiveData<SingleRecipeState>(SingleRecipeState.Success(testRecipe))
+        every { mockViewModel.singleRecipeState } returns recipeState
+
+        val favoritesState = MutableLiveData<List<Recipe>>(emptyList())
+        every { mockViewModel.favoriteRecipes } returns favoritesState
 
         // When
         composeTestRule.setContent {
@@ -158,14 +161,12 @@ class RecipeIntegrationTest {
             img_src = "test.jpg"
         )
 
-        every { mockViewModel.singleRecipeState } returns mockk {
-            every { value } returns SingleRecipeState.Success(testRecipe)
-        }
-        every { mockViewModel.favoriteRecipes } returns mockk {
-            every { value } returns emptyList()
-        }
+        // FIX: Use real MutableLiveData
+        val recipeState = MutableLiveData<SingleRecipeState>(SingleRecipeState.Success(testRecipe))
+        every { mockViewModel.singleRecipeState } returns recipeState
 
-        var backPressed = false
+        val favoritesState = MutableLiveData<List<Recipe>>(emptyList())
+        every { mockViewModel.favoriteRecipes } returns favoritesState
 
         // When
         composeTestRule.setContent {
@@ -184,7 +185,7 @@ class RecipeIntegrationTest {
             .assertIsDisplayed()
             .performClick()
 
-        // Navigation would happen here in real app
+        // Navigation verification would normally go here (e.g. verify navController calls)
     }
 
     @Test
@@ -196,20 +197,12 @@ class RecipeIntegrationTest {
             img_src = "test.jpg"
         )
 
-        val favoritesList = mutableListOf<Recipe>()
+        // FIX: Use real MutableLiveData to hold state
+        val recipeState = MutableLiveData<SingleRecipeState>(SingleRecipeState.Success(testRecipe))
+        every { mockViewModel.singleRecipeState } returns recipeState
 
-        every { mockViewModel.singleRecipeState } returns mockk {
-            every { value } returns SingleRecipeState.Success(testRecipe)
-        }
-        every { mockViewModel.favoriteRecipes } returns mockk {
-            every { value } returns favoritesList
-        }
-        every { mockViewModel.addFavorite(any()) } answers {
-            favoritesList.add(testRecipe)
-        }
-        every { mockViewModel.removeFavorite(any()) } answers {
-            favoritesList.clear()
-        }
+        val favoritesState = MutableLiveData<List<Recipe>>(emptyList())
+        every { mockViewModel.favoriteRecipes } returns favoritesState
 
         // When
         composeTestRule.setContent {
@@ -223,32 +216,36 @@ class RecipeIntegrationTest {
             }
         }
 
-        // Click favorite button to add
+        // 1. Click favorite button to add
         composeTestRule.onNodeWithContentDescription("Favorite this recipe")
             .performClick()
 
-        // Then
+        // Then verify call
         verify { mockViewModel.addFavorite(testRecipe) }
 
-        // Update state to show favorited
-        every { mockViewModel.favoriteRecipes } returns mockk {
-            every { value } returns listOf(testRecipe)
-        }
+        // 2. Simulate ViewModel updating the state (manually update the MutableLiveData)
+        favoritesState.postValue(listOf(testRecipe))
+        composeTestRule.waitForIdle() // Wait for Compose to react to the state change
 
-        // Click again to remove
+        // 3. Click again to remove (State is now 'favorited', so icon should be filled)
+        // Note: You might need to adjust this matcher if your filled/unfilled icons use different content descriptions
         composeTestRule.onNodeWithContentDescription("Favorite this recipe")
             .performClick()
 
-        // Then
+        // Then verify remove call
         verify { mockViewModel.removeFavorite(testRecipe.firestoreId) }
     }
 
     @Test
     fun recipeDetailsScreen_showsLoadingState() {
         // Given
-        every { mockViewModel.singleRecipeState } returns mockk {
-            every { value } returns SingleRecipeState.Loading
-        }
+        // FIX: Use real MutableLiveData
+        val recipeState = MutableLiveData<SingleRecipeState>(SingleRecipeState.Loading)
+        every { mockViewModel.singleRecipeState } returns recipeState
+
+        // Even if the UI doesn't show favorites in loading, observeAsState might still run init checks
+        val favoritesState = MutableLiveData<List<Recipe>>(emptyList())
+        every { mockViewModel.favoriteRecipes } returns favoritesState
 
         // When
         composeTestRule.setContent {
@@ -270,9 +267,12 @@ class RecipeIntegrationTest {
     fun recipeDetailsScreen_showsErrorState() {
         // Given
         val errorMessage = "Failed to load recipe"
-        every { mockViewModel.singleRecipeState } returns mockk {
-            every { value } returns SingleRecipeState.Error(errorMessage)
-        }
+        // FIX: Use real MutableLiveData
+        val recipeState = MutableLiveData<SingleRecipeState>(SingleRecipeState.Error(errorMessage))
+        every { mockViewModel.singleRecipeState } returns recipeState
+
+        val favoritesState = MutableLiveData<List<Recipe>>(emptyList())
+        every { mockViewModel.favoriteRecipes } returns favoritesState
 
         // When
         composeTestRule.setContent {
@@ -303,12 +303,12 @@ class RecipeIntegrationTest {
             directions = "Step 1\nStep 2\nStep 3\nStep 4\nStep 5"
         )
 
-        every { mockViewModel.singleRecipeState } returns mockk {
-            every { value } returns SingleRecipeState.Success(testRecipe)
-        }
-        every { mockViewModel.favoriteRecipes } returns mockk {
-            every { value } returns emptyList()
-        }
+        // FIX: Use real MutableLiveData
+        val recipeState = MutableLiveData<SingleRecipeState>(SingleRecipeState.Success(testRecipe))
+        every { mockViewModel.singleRecipeState } returns recipeState
+
+        val favoritesState = MutableLiveData<List<Recipe>>(emptyList())
+        every { mockViewModel.favoriteRecipes } returns favoritesState
 
         // When
         composeTestRule.setContent {
