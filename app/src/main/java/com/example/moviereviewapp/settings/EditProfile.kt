@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.moviereviewapp.R
+import com.example.moviereviewapp.Routes
+import com.example.moviereviewapp.app_routes.Profile
 import com.example.moviereviewapp.ui.theme.AppBgColor
 import com.example.moviereviewapp.ui.theme.Orange
 import com.example.moviereviewapp.ui.theme.White
