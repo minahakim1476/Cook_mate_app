@@ -2,6 +2,7 @@ package com.example.moviereviewapp.settings
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,19 +25,29 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.moviereviewapp.AppViewModel
 import com.example.moviereviewapp.R
+import com.example.moviereviewapp.Routes
 import com.example.moviereviewapp.ui.theme.AppBgColor
 import com.example.moviereviewapp.ui.theme.Orange
 import com.example.moviereviewapp.ui.theme.White
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 @Composable
 fun PrivacySecurityScreen(
-    navController: NavController? = null,
-    onBackClick: () -> Unit = {}
+    navController: NavController,
+    appViewModel: AppViewModel
 ) {
 
+    val context = LocalContext.current
+    val currentUser = Firebase.auth.currentUser
+    val userEmail = currentUser?.email ?: ""
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showChangePasswordDialog by remember { mutableStateOf(false) }
+    var deletePassword by remember { mutableStateOf("") }
+    var isDeleting by remember { mutableStateOf(false) }
+    var deleteError by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -56,7 +67,7 @@ fun PrivacySecurityScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(onClick = {
-                    navController?.popBackStack() ?: onBackClick()
+                    navController.popBackStack()
                 }) {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.arrow_back),
@@ -142,7 +153,7 @@ fun PrivacySecurityScreen(
                         icon = ImageVector.vectorResource(R.drawable.baseline_description_24),
                         title = "Privacy Policy",
                         subtitle = "Read our privacy policy",
-                        onClick = {  }
+                        onClick = { }
                     )
 
                     Divider(
@@ -154,7 +165,7 @@ fun PrivacySecurityScreen(
                         icon = ImageVector.vectorResource(R.drawable.baseline_article_24),
                         title = "Terms of Service",
                         subtitle = "View terms and conditions",
-                        onClick = {  }
+                        onClick = { }
                     )
                 }
             }
@@ -196,7 +207,13 @@ fun PrivacySecurityScreen(
     // Delete Account Confirmation Dialog
     if (showDeleteDialog) {
         AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
+            onDismissRequest = {
+                if (!isDeleting) {
+                    showDeleteDialog = false
+                    deletePassword = ""
+                    deleteError = ""
+                }
+            },
             icon = {
                 Icon(
                     imageVector = Icons.Outlined.Warning,
@@ -212,25 +229,85 @@ fun PrivacySecurityScreen(
                 )
             },
             text = {
-                Text(
-                    text = "This action cannot be undone. All your data, recipes, and favorites will be permanently deleted."
-                )
+                Column {
+                    Text(
+                        text = "This action cannot be undone. All your data, recipes, and favorites will be permanently deleted.",
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = deletePassword,
+                        onValueChange = {
+                            deletePassword = it
+                            deleteError = ""
+                        },
+                        label = { Text("Enter your password") },
+                        placeholder = { Text("Password") },
+                        visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                        singleLine = true,
+                        enabled = !isDeleting,
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = deleteError.isNotEmpty()
+                    )
+
+                    if (deleteError.isNotEmpty()) {
+                        Text(
+                            text = deleteError,
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        // Handle account deletion
-                        showDeleteDialog = false
+                        isDeleting = true
+                        deleteError = ""
+                        appViewModel.deleteAccount(
+                            password = deletePassword,
+                            onSuccess = {
+                                isDeleting = false
+                                showDeleteDialog = false
+                                deletePassword = ""
+                                Toast.makeText(
+                                    context,
+                                    "Account deleted successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                // Navigation will happen automatically via LaunchedEffect in Home screen
+                            },
+                            onError = { error ->
+                                isDeleting = false
+                                deleteError = error
+                            }
+                        )
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Red
-                    )
+                    ),
+                    enabled = !isDeleting && deletePassword.isNotBlank()
                 ) {
-                    Text("Delete")
+                    if (isDeleting) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    } else {
+                        Text("Delete Forever")
+                    }
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        deletePassword = ""
+                        deleteError = ""
+                    },
+                    enabled = !isDeleting
+                ) {
                     Text("Cancel", color = Color.Gray)
                 }
             },
@@ -249,11 +326,19 @@ fun PrivacySecurityScreen(
                 )
             },
             text = {
-                Text(text = "Password change functionality will be implemented here.")
+                Text(text = "Are you sure you want to change your password?")
             },
             confirmButton = {
+                TextButton(onClick = {
+                    appViewModel.resetPassword(userEmail, context)
+                    showChangePasswordDialog = false
+                }) {
+                    Text("confirm", color = Orange)
+                }
+            },
+            dismissButton = {
                 TextButton(onClick = { showChangePasswordDialog = false }) {
-                    Text("OK", color = Orange)
+                    Text("cancel", color = Color.Gray)
                 }
             },
             shape = RoundedCornerShape(16.dp)
@@ -309,8 +394,3 @@ fun PrivacyItem(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PrivacySecurityScreenPreview() {
-    PrivacySecurityScreen()
-}

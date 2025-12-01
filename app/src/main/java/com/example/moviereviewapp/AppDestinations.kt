@@ -106,10 +106,10 @@ fun AppNavHost(
             EditProfile(navController = navController)
         }
         composable(Settings.HELP_SUPPORT_ROUTE) {
-            HelpAndSupportScreen(navController = navController)
+            HelpAndSupportScreen(navController)
         }
         composable(Settings.PRIVACY_SECURITY_ROUTE) {
-            PrivacySecurityScreen(navController = navController)
+            PrivacySecurityScreen(navController, appViewModel)
         }
         composable(
             route = RecipeNavigation.RECIPE_ROUTE_WITH_ARGS,

@@ -303,6 +303,46 @@ class AppViewModel : ViewModel() {
         _favoriteRecipes.value = emptyList()
         _favoritesState.value = emptySet()
     }
+
+    fun deleteAccount(
+        password: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val user = auth.currentUser
+        val email = user?.email
+
+        if (user == null || email == null) {
+            onError("No user is currently signed in")
+            return
+        }
+
+        if (password.isBlank()) {
+            onError("Password is required to delete account")
+            return
+        }
+
+        // Re-authenticate user before deletion (Firebase security requirement)
+        val credential = com.google.firebase.auth.EmailAuthProvider.getCredential(email, password)
+
+        user.reauthenticate(credential)
+            .addOnCompleteListener { reauthTask ->
+                if (reauthTask.isSuccessful) {
+                    // Delete the user account
+                    user.delete()
+                        .addOnCompleteListener { deleteTask ->
+                            if (deleteTask.isSuccessful) {
+                                _authState.value = AuthState.UnAuthenticated
+                                onSuccess()
+                            } else {
+                                onError(deleteTask.exception?.message ?: "Failed to delete account")
+                            }
+                        }
+                } else {
+                    onError("Incorrect password. Please try again.")
+                }
+            }
+    }
 }
 
 sealed class AuthState {
