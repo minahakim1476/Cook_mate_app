@@ -37,8 +37,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -211,19 +213,26 @@ fun Home(
                     if (state.recipes.isEmpty()) {
                         item {
                             Text(
-                                    text = "No recipes found",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(24.dp),
-                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
-                                )
+                                text = "No recipes found",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                            )
                         }
                     } else {
-                        items(state.recipes) { recipe ->
+                        itemsIndexed(state.recipes) { index, recipe ->
                             RecipeCard(recipe = recipe,
                                 onRecipeClick = { recipeId ->
                                     navController.navigate(RecipeNavigation.recipeRoute(recipeId))
                                 })
+
+                            // When the last item is composed, request the next page
+                            if (index == state.recipes.lastIndex) {
+                                LaunchedEffect(state.recipes.size) {
+                                    appViewModel.fetchNextPage()
+                                }
+                            }
                         }
                     }
                 }

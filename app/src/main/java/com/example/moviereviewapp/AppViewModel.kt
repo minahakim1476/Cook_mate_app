@@ -11,6 +11,8 @@ import com.example.moviereviewapp.SettingsRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 
 
@@ -39,6 +41,12 @@ class AppViewModel : ViewModel() {
     // Favorites recipes list
     private val _favoriteRecipes = MutableLiveData<List<Recipe>>(emptyList())
     val favoriteRecipes: LiveData<List<Recipe>> = _favoriteRecipes
+
+    // Pagination state for recipes
+    private var lastVisibleDocument: DocumentSnapshot? = null
+    private val pageSize: Long = 12
+    private var isLoadingPage = false
+    private var allPagesLoaded = false
 
     // Settings: whether favorites feature is enabled
     private val _favoritesEnabled = MutableLiveData<Boolean>(SettingsRepository.isFavoritesEnabled())
@@ -98,41 +106,79 @@ class AppViewModel : ViewModel() {
             _authState.value = AuthState.Authenticated
     }
 
-    fun fetchRecipes() {
-        Log.d("AppViewModel", "Fetching recipes...")
+    /**
+     * Fetch recipes with simple pagination. Call with reset=true to load the first page.
+     * Subsequent calls with reset=false will load next pages until no more documents are returned.
+     */
+    fun fetchRecipes(reset: Boolean = true) {
+        if (isLoadingPage) return
 
-        _recipeState.value = RecipeState.Loading
+        if (reset) {
+            lastVisibleDocument = null
+            allPagesLoaded = false
+            _recipeState.value = RecipeState.Loading
+        }
 
-        db.collection("recipes")
-            .get()
+        if (allPagesLoaded) return
+
+        Log.d("AppViewModel", "Fetching recipes... reset=$reset lastVisible=${lastVisibleDocument != null}")
+
+        isLoadingPage = true
+
+        var query: Query = db.collection("recipes").orderBy("recipe_name").limit(pageSize)
+        lastVisibleDocument?.let { query = query.startAfter(it) }
+
+        query.get()
             .addOnSuccessListener { result ->
                 try {
-                    val recipes = mutableListOf<Recipe>()
-
+                    val page = mutableListOf<Recipe>()
                     for (document in result.documents) {
                         try {
                             val recipe = document.toObject<Recipe>()
-                            if (recipe != null) {
-                                recipes.add(recipe)
-                            }
+                            if (recipe != null) page.add(recipe)
                         } catch (e: Exception) {
-                            Log.e(
-                                "AppViewModel",
-                                "Error parsing document ${document.id}: ${e.message}"
-                            )
+                            Log.e("AppViewModel", "Error parsing document ${document.id}: ${e.message}")
                         }
                     }
-                    _recipeState.value = RecipeState.Success(recipes)
+
+                    // Update last visible document
+                    lastVisibleDocument = result.documents.lastOrNull()
+
+                    // If reset -> replace list, else append
+                    val current = _recipeState.value
+                    val newList = if (reset || current !is RecipeState.Success) {
+                        page
+                    } else {
+                        val existing = (current as RecipeState.Success).recipes.toMutableList()
+                        existing.addAll(page)
+                        existing
+                    }
+
+                    _recipeState.value = RecipeState.Success(newList)
+
+                    // If returned fewer than pageSize => we've reached the end
+                    if (page.size < pageSize) {
+                        allPagesLoaded = true
+                        Log.d("AppViewModel", "All pages loaded; total=${newList.size}")
+                    }
 
                 } catch (e: Exception) {
                     Log.e("AppViewModel", "Error during parsing: ${e.message}", e)
                     _recipeState.value = RecipeState.Error("Failed to parse recipes: ${e.message}")
                 }
+
+                isLoadingPage = false
             }
             .addOnFailureListener { exception ->
                 Log.e("AppViewModel", "FAILURE: ${exception.message}", exception)
                 _recipeState.value = RecipeState.Error(exception.message ?: "Something went wrong")
+                isLoadingPage = false
             }
+    }
+
+    /** Convenience for UI to load next page */
+    fun fetchNextPage() {
+        fetchRecipes(reset = false)
     }
 
     /** Favorites management **/
