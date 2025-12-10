@@ -49,6 +49,8 @@ import com.example.moviereviewapp.ui.theme.White
 // Favorites will be provided by the AppViewModel (Firestore)
 
 
+import androidx.compose.material3.MaterialTheme
+
 @Composable
 fun Favorite(
     appViewModel: AppViewModel,
@@ -58,7 +60,7 @@ fun Favorite(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(AppBgColor)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Top header
         Box(
@@ -69,7 +71,7 @@ fun Favorite(
         ) {
             Text(
                 text = "Favorite Recipes",
-                color = White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -94,12 +96,11 @@ fun Favorite(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(favorites) { recipe ->
-                RecipeCard(recipe,appViewModel) { recipeId ->
+                RecipeCard(recipe, appViewModel) { recipeId ->
                     navController.navigate(RecipeNavigation.recipeRoute(recipeId))
                 }
             }
         }
-        
     }
 }
 
@@ -112,8 +113,7 @@ fun RecipeCard(
     Card(
         onClick = {onRecipeClick(recipe.firestoreId)},
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
             .fillMaxWidth()
 
@@ -154,7 +154,7 @@ fun RecipeCard(
                     text = recipe.recipe_name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -163,7 +163,11 @@ fun RecipeCard(
                     // Time and kcal (guard against null)
 
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = recipe.total_time.ifBlank { "—" }, color = Color.Gray, fontSize = 12.sp)
+                    Text(
+                        text = recipe.total_time.ifBlank { "—" },
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        fontSize = 12.sp
+                    )
                     Spacer(modifier = Modifier.width(12.dp))
                 }
             }

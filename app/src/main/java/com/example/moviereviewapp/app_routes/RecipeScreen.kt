@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -103,6 +104,11 @@ fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit)
     // FIXED: Use favoriteRecipes to get the Set of favorite IDs
     val favorites by appViewModel.favoriteRecipes.observeAsState(emptyList())
 
+    // Observe whether favorites feature is enabled in settings
+    val favoritesEnabled by appViewModel.favoritesEnabled.observeAsState(true)
+    // Get context in composable scope (don't call LocalContext.current inside lambdas)
+    val ctx = LocalContext.current
+
     // FIXED: Simple check - is THIS recipe's ID in the favorites list?
     val isFavorite = favorites.any {
         it.firestoreId == recipe.firestoreId && recipe.firestoreId.isNotBlank()
@@ -117,10 +123,14 @@ fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit)
                 imageUrl = recipe.img_src,
                 onBackClick = onBack,
                 onFavoriteClick = {
-                    if (isFavorite) {
-                        appViewModel.removeFavorite(recipe.firestoreId)
+                    if (!favoritesEnabled) {
+                        Toast.makeText(ctx, "Favorites are disabled in Settings", Toast.LENGTH_SHORT).show()
                     } else {
-                        appViewModel.addFavorite(recipe)
+                        if (isFavorite) {
+                            appViewModel.removeFavorite(recipe.firestoreId)
+                        } else {
+                            appViewModel.addFavorite(recipe)
+                        }
                     }
                 },
                 isFavorite = isFavorite

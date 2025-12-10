@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.dp
@@ -143,10 +144,10 @@ fun RecipeHomeScreen(
 
 
     Scaffold(
-        modifier = Modifier.background(AppBgColor),
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
         bottomBar = {
             NavigationBar(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 8.dp
             ) {
                 NavigationBarItem(

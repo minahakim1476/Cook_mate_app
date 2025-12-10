@@ -9,11 +9,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.moviereviewapp.ui.theme.AppBgColor
+import androidx.compose.material3.MaterialTheme
 import com.example.moviereviewapp.ui.theme.MovieReviewAppTheme
+import com.example.moviereviewapp.SettingsRepository
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,12 +32,17 @@ class MainActivity : ComponentActivity() {
         // Set status bar color
         window.statusBarColor = android.graphics.Color.TRANSPARENT
 
+        // Initialize settings repository (SharedPreferences)
+        SettingsRepository.init(applicationContext)
+
         val appViewModel: AppViewModel by viewModels()
         setContent {
-            MovieReviewAppTheme {
+            val darkTheme by appViewModel.darkThemeEnabled.observeAsState(false)
+
+            MovieReviewAppTheme(darkTheme = darkTheme) {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    containerColor = AppBgColor
+                    containerColor = MaterialTheme.colorScheme.background
                 ) { innerPadding ->
                     AppNavHost(Modifier, appViewModel)
                 }

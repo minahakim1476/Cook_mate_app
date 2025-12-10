@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -73,7 +74,7 @@ fun Home(
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
-                .background(AppBgColor)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             // ======================== HEADER ===========================
             item {
@@ -104,7 +105,7 @@ fun Home(
                                     onClick = { },
                                     modifier = Modifier
                                         .size(40.dp)
-                                        .background(Color.White, CircleShape)
+                                        .background(MaterialTheme.colorScheme.surface, CircleShape)
                                 ) {
                                     Icon(
                                         Icons.Default.ShoppingCart,
@@ -117,7 +118,7 @@ fun Home(
                                     onClick = { },
                                     modifier = Modifier
                                         .size(40.dp)
-                                        .background(Color.White, CircleShape)
+                                        .background(MaterialTheme.colorScheme.surface, CircleShape)
                                 ) {
                                     Icon(
                                         Icons.Default.Notifications,
@@ -132,7 +133,7 @@ fun Home(
 
                         Text(
                             text = "What would you like to cook today?",
-                            color = Color.White.copy(alpha = 0.9f),
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f),
                             fontSize = 16.sp
                         )
 
@@ -151,8 +152,8 @@ fun Home(
                                 Icon(Icons.Default.Search, contentDescription = "Search")
                             },
                             colors = TextFieldDefaults.colors(
-                                unfocusedContainerColor = Color.White,
-                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
                                 unfocusedIndicatorColor = Color.Transparent,
                                 focusedIndicatorColor = Color.Transparent
                             ),

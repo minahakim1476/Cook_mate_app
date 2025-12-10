@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
+import com.example.moviereviewapp.SettingsRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
@@ -39,10 +40,29 @@ class AppViewModel : ViewModel() {
     private val _favoriteRecipes = MutableLiveData<List<Recipe>>(emptyList())
     val favoriteRecipes: LiveData<List<Recipe>> = _favoriteRecipes
 
+    // Settings: whether favorites feature is enabled
+    private val _favoritesEnabled = MutableLiveData<Boolean>(SettingsRepository.isFavoritesEnabled())
+    val favoritesEnabled: LiveData<Boolean> = _favoritesEnabled
+
+    // Settings: dark theme toggle
+    private val _darkThemeEnabled = MutableLiveData<Boolean>(SettingsRepository.isDarkThemeEnabled())
+    val darkThemeEnabled: LiveData<Boolean> = _darkThemeEnabled
+
     init {
         checkAuthState()
         fetchRecipes()
         fetchFavorites()
+    }
+
+    fun setFavoritesEnabled(enabled: Boolean) {
+        SettingsRepository.setFavoritesEnabled(enabled)
+        _favoritesEnabled.value = enabled
+    }
+
+    fun setDarkThemeEnabled(enabled: Boolean) {
+        android.util.Log.d("AppViewModel", "setDarkThemeEnabled: $enabled")
+        SettingsRepository.setDarkThemeEnabled(enabled)
+        _darkThemeEnabled.value = enabled
     }
 
     fun fetchRecipeById(recipeId: String) {

@@ -32,6 +32,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -90,7 +91,7 @@ fun Profile(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppBgColor)
+            .background(MaterialTheme.colorScheme.background)
     ) {
 
         val authState = appViewModel?.authState?.observeAsState()
@@ -115,12 +116,12 @@ fun Profile(
                 .padding(horizontal = 18.dp, vertical = 24.dp)
                 .statusBarsPadding()
         ) {
-            Text(
-                text = "Profile",
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
+                Text(
+                    text = "Profile",
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
         }
 
         Spacer(Modifier.height(26.dp))
@@ -147,7 +148,7 @@ fun Profile(
                             .border(
                                 shape = RoundedCornerShape(68.dp),
                                 width = 3.dp,
-                                color = Color.White
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                             .background(Orange),
                         contentAlignment = Alignment.Center
@@ -156,7 +157,7 @@ fun Profile(
                             text = initials,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Normal,
-                            color = White
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
 
@@ -167,12 +168,12 @@ fun Profile(
                             text = userName,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Black
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
                             text = userEmail,
                             fontSize = 14.sp,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                         )
                     }
                 }
@@ -187,7 +188,7 @@ fun Profile(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(16.dp)
             ) {
                 Column(
@@ -199,7 +200,7 @@ fun Profile(
                         text = "Settings",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Black
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(Modifier.height(24.dp))
@@ -217,6 +218,34 @@ fun Profile(
                         "Notifications",
                         notificationsEnabled,
                         { notificationsEnabled = it },
+                        Orange
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    // Favorites toggle persisted via AppViewModel -> SettingsRepository
+                    val favoritesEnabled by appViewModel?.favoritesEnabled?.observeAsState(true)
+                        ?: remember { mutableStateOf(true) }
+
+                    SettingsWithSwitch(
+                        ImageVector.vectorResource(R.drawable.notifications),
+                        "Favorites",
+                        favoritesEnabled,
+                        { appViewModel?.setFavoritesEnabled(it) },
+                        Orange
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    // Dark theme toggle
+                    val darkThemeEnabled by appViewModel?.darkThemeEnabled?.observeAsState(false)
+                        ?: remember { mutableStateOf(false) }
+
+                    SettingsWithSwitch(
+                        ImageVector.vectorResource(R.drawable.notifications),
+                        "Dark Theme",
+                        darkThemeEnabled,
+                        { appViewModel?.setDarkThemeEnabled(it) },
                         Orange
                     )
 
@@ -257,7 +286,7 @@ fun Profile(
                     .padding(horizontal = 16.dp)
                     .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(AppBgColor),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
                 border = ButtonDefaults.outlinedButtonBorder.copy(
                     width = 1.dp,
                     brush = androidx.compose.ui.graphics.SolidColor(DarkRed)
@@ -305,7 +334,7 @@ fun Settings(
         Text(
             text = title,
             fontSize = 16.sp,
-            color = Black,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         Image(
@@ -339,17 +368,17 @@ fun SettingsWithSwitch(
         Text(
             text = title,
             fontSize = 16.sp,
-            color = Black,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = White,
+                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                 checkedTrackColor = switchColor,
-                uncheckedThumbColor = White,
-                uncheckedTrackColor = Color.Gray.copy(alpha = 0.3f)
+                uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
+                uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
             )
         )
     }
@@ -378,13 +407,13 @@ fun SettingsWithText(
         Text(
             text = title,
             fontSize = 16.sp,
-            color = Black,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         Text(
             text = text,
             fontSize = 14.sp,
-            color = Color.Gray
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
         Spacer(modifier = Modifier.width(8.dp))
         Image(

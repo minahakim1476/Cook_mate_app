@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -270,7 +271,7 @@ fun SignUpScreen(
                 .fillMaxWidth()
                 .height(50.dp),
             shape = RoundedCornerShape(28.dp),
-            colors = ButtonDefaults.buttonColors(AppBgColor),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
             border = ButtonDefaults.outlinedButtonBorder.copy(
                 width = 2.dp,
                 brush = androidx.compose.ui.graphics.SolidColor(colorResource(R.color.orange))

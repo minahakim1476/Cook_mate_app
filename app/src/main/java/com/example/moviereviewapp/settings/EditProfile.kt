@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -79,7 +80,7 @@ fun EditProfile(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(AppBgColor)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Header with back button
         Box(
@@ -154,8 +155,8 @@ fun EditProfile(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Orange,
                     unfocusedBorderColor = Color.Gray.copy(alpha = 0.3f),
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                     focusedLabelColor = Orange
                 ),
                 singleLine = true,
@@ -178,7 +179,7 @@ fun EditProfile(
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     disabledBorderColor = Color.Gray.copy(alpha = 0.3f),
-                    disabledContainerColor = Color.Gray.copy(alpha = 0.1f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surface,
                     disabledTextColor = Color.Gray,
                     disabledLabelColor = Color.Gray
                 ),
@@ -228,15 +229,15 @@ fun EditProfile(
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(24.dp)
                     )
                 } else {
-                    Text(
+                        Text(
                         text = "Save Changes",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
