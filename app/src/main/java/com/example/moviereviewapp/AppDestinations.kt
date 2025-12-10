@@ -44,6 +44,13 @@ import com.example.moviereviewapp.settings.HelpAndSupportScreen
 import com.example.moviereviewapp.settings.PrivacySecurityScreen
 import com.example.moviereviewapp.ui.theme.AppBgColor
 import com.example.moviereviewapp.app_routes.RecipeRoute
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Divider
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 
 object OnboardingScreen {
     const val DISCOVER_SCREEN = "discover"
@@ -151,7 +158,7 @@ fun RecipeHomeScreen(
                 tonalElevation = 8.dp
             ) {
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Home", modifier = Modifier.size(20.dp)) },
                     label = { Text("Home") },
                     selected = selectedItem == 0,
                     onClick = { selectedItem = 0 },
@@ -162,8 +169,8 @@ fun RecipeHomeScreen(
                     )
                 )
                 NavigationBarItem(
-                    icon = { Icon(painter = painterResource(R.drawable.smart_toy_24px), contentDescription = "AI Chat") },
-                    label = { Text("AI Chat") },
+                    icon = { Icon(painter = painterResource(R.drawable.shopping_list), contentDescription = "Shopping", modifier = Modifier.size(20.dp)) },
+                    label = { Text("Shopping") },
                     selected = selectedItem == 1,
                     onClick = { selectedItem = 1 },
                     colors = NavigationBarItemDefaults.colors(
@@ -173,7 +180,7 @@ fun RecipeHomeScreen(
                     )
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Favorite, contentDescription = "Favorites") },
+                    icon = { Icon(Icons.Default.Favorite, contentDescription = "Favorites", modifier = Modifier.size(20.dp)) },
                     label = { Text("Favorites") },
                     selected = selectedItem == 2,
                     onClick = { selectedItem = 2 },
@@ -184,7 +191,7 @@ fun RecipeHomeScreen(
                     )
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Person, contentDescription = "Profile") },
+                    icon = { Icon(Icons.Default.Person, contentDescription = "Profile", modifier = Modifier.size(20.dp)) },
                     label = { Text("Profile") },
                     selected = selectedItem == 3,
                     onClick = { selectedItem = 3 },
@@ -203,7 +210,8 @@ fun RecipeHomeScreen(
             }
 
             1 -> {
-                AiChat(modifier)
+                // Shopping list screen
+                ShoppingListScreen()
             }
 
             2 -> {
@@ -214,5 +222,19 @@ fun RecipeHomeScreen(
                 Profile(modifier , navController , appViewModel)
             }
         }
+    }
+}
+
+@Composable
+fun ShoppingListScreen() {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text(
+            text = "Shopping List",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.fillMaxSize(),
+            textAlign = TextAlign.Center
+        )
+        Divider(modifier = Modifier.padding(vertical = 8.dp))
+        // TODO: Implement actual shopping list UI
     }
 }
