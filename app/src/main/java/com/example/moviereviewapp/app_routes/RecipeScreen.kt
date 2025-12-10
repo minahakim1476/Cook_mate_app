@@ -144,7 +144,8 @@ fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit)
                 Text(
                     text = recipe.recipe_name,
                     style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -156,7 +157,7 @@ fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit)
                         Icon(
                             painter = painterResource(id = R.drawable.outline_clock_24),
                             contentDescription = "Time",
-                            tint = Color.Gray,
+                            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                             modifier = Modifier.size(18.dp)
                         )
 
@@ -164,7 +165,7 @@ fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit)
 
                         Text(
                             text = recipe.total_time,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                             fontSize = 14.sp
                         )
                     }
@@ -173,7 +174,7 @@ fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit)
                         Icon(
                             painter = painterResource(id = R.drawable.person_outline),
                             contentDescription = "Time",
-                            tint = Color.Gray,
+                            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                             modifier = Modifier.size(18.dp)
                         )
 
@@ -181,7 +182,7 @@ fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit)
 
                         Text(
                             text = "${recipe.servings}",
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                             fontSize = 14.sp
                         )
                     }
@@ -241,7 +242,7 @@ fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit)
                             ) {
                                 Text(
                                     text = (index + 1).toString(),
-                                    color = Color.White,
+                                    color = MaterialTheme.colorScheme.onPrimary,
                                     fontWeight = FontWeight.Bold,
                                     style = MaterialTheme.typography.labelMedium
                                 )
@@ -252,6 +253,7 @@ fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit)
                             Text(
                                 text = instruction.trim(),
                                 style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -298,12 +300,12 @@ fun RecipeImageSection(
                 onClick = onBackClick,
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Go back",
-                    tint = Color.Black
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -312,12 +314,12 @@ fun RecipeImageSection(
                 onClick = onFavoriteClick,
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Icon(
                     imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = "Favorite this recipe",
-                    tint = if (isFavorite) MaterialTheme.colorScheme.error else Color.Black
+                    tint = if (isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -333,7 +335,7 @@ fun RecipeSectionCard(title: String, content: @Composable () -> Unit) {
             .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {

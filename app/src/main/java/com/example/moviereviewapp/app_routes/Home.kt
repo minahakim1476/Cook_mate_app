@@ -89,17 +89,17 @@ fun Home(
                         .padding(24.dp)
                 ) {
                     Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Hello, Chef! 👋",
-                                color = Color.White,
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Hello, Chef! 👋",
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    fontSize = 28.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             Row {
                                 IconButton(
                                     onClick = { },
@@ -172,7 +172,7 @@ fun Home(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 24.dp),
-                    color = Black
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -199,7 +199,7 @@ fun Home(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 24.dp),
-                    color = Black
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -211,12 +211,12 @@ fun Home(
                     if (state.recipes.isEmpty()) {
                         item {
                             Text(
-                                text = "No recipes found",
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(24.dp),
-                                color = Color.Gray
-                            )
+                                    text = "No recipes found",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(24.dp),
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                                )
                         }
                     } else {
                         items(state.recipes) { recipe ->
@@ -233,7 +233,7 @@ fun Home(
                         Text(
                             text = "Error: ${state.message}",
                             modifier = Modifier.padding(horizontal = 24.dp),
-                            color = Color.Red
+                            color = MaterialTheme.colorScheme.error
                         )
                     }
                 }
@@ -255,7 +255,8 @@ fun Home(
                     item {
                         Text(
                             text = "Initializing...",
-                            modifier = Modifier.padding(horizontal = 24.dp)
+                            modifier = Modifier.padding(horizontal = 24.dp),
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 }
@@ -269,7 +270,7 @@ fun Home(
 fun CategoryChip(text: String) {
     Surface(
         shape = RoundedCornerShape(20.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         tonalElevation = 2.dp,
         shadowElevation = 2.dp
     ) {
@@ -277,7 +278,7 @@ fun CategoryChip(text: String) {
             text = text,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
             fontSize = 14.sp,
-            color = Black
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -296,7 +297,7 @@ fun RecipeCard(
             .padding(horizontal = 24.dp, vertical = 8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
@@ -322,7 +323,7 @@ fun RecipeCard(
                     text = recipe.recipe_name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2D2D2D)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -334,13 +335,13 @@ fun RecipeCard(
                         Icons.Default.DateRange,
                         contentDescription = "Time",
                         modifier = Modifier.size(16.dp),
-                        tint = Color.Gray
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = recipe.total_time,
                         fontSize = 14.sp,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
 
                     Spacer(modifier = Modifier.width(16.dp))
@@ -351,13 +352,13 @@ fun RecipeCard(
                             Icons.Default.Person,
                             contentDescription = "Servings",
                             modifier = Modifier.size(16.dp),
-                            tint = Color.Gray
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = servingsText,
                             fontSize = 14.sp,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                         )
                     }
                 }
@@ -370,13 +371,13 @@ fun RecipeCard(
                             Icons.Default.Info,
                             contentDescription = "Calories",
                             modifier = Modifier.size(16.dp),
-                            tint = Color.Gray
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = recipe.calories,
                             fontSize = 14.sp,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                         )
                     }
                 }
