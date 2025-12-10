@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,9 +37,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import android.net.Uri
+import java.net.URLEncoder
 import android.widget.Toast
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -121,6 +126,7 @@ fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit)
         item {
             RecipeImageSection(
                 imageUrl = recipe.img_src,
+                recipeName = recipe.recipe_name,
                 onBackClick = onBack,
                 onFavoriteClick = {
                     if (!favoritesEnabled) {
@@ -268,6 +274,7 @@ fun RecipeScreen(recipe: Recipe, appViewModel: AppViewModel, onBack: () -> Unit)
 @Composable
 fun RecipeImageSection(
     imageUrl: String,
+    recipeName: String,
     onBackClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     isFavorite: Boolean
@@ -287,6 +294,8 @@ fun RecipeImageSection(
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxWidth()
         )
+
+        val ctx = LocalContext.current
 
         Row(
             modifier = Modifier
@@ -308,19 +317,42 @@ fun RecipeImageSection(
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
+            // Right-side group: YouTube search + Favorite
+            Row {
+                IconButton(
+                    onClick = {
+                        try {
+                            val q = URLEncoder.encode(recipeName, "UTF-8")
+                            val url = "https://www.youtube.com/results?search_query=$q"
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            ctx.startActivity(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(ctx, "Unable to open YouTube", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.youtube),
+                        contentDescription = "Search on YouTube",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
 
-            // ================= Favorite Button =================
-            IconButton(
-                onClick = onFavoriteClick,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surface)
-            ) {
-                Icon(
-                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = "Favorite this recipe",
-                    tint = if (isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
-                )
+                IconButton(
+                    onClick = onFavoriteClick,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface)
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = "Favorite this recipe",
+                        tint = if (isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
         }
     }
