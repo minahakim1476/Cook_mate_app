@@ -33,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -41,6 +42,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.collectLatest
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,12 +73,16 @@ fun Home(
 ) {
     val recipeState by appViewModel.recipeState.observeAsState()
     val isRefreshing = recipeState is RecipeState.Loading
+    val loading by appViewModel.recipesLoading.observeAsState(false)
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = { appViewModel.fetchRecipes() }
     ) {
+        val listState = rememberLazyListState()
+
         LazyColumn(
+            state = listState,
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
@@ -226,11 +235,18 @@ fun Home(
                                 onRecipeClick = { recipeId ->
                                     navController.navigate(RecipeNavigation.recipeRoute(recipeId))
                                 })
-
-                            // When the last item is composed, request the next page
-                            if (index == state.recipes.lastIndex) {
-                                LaunchedEffect(state.recipes.size) {
-                                    appViewModel.fetchNextPage()
+                        }
+                        
+                        // Add loading indicator as last item
+                        if (loading) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
                                 }
                             }
                         }
@@ -267,6 +283,24 @@ fun Home(
                             modifier = Modifier.padding(horizontal = 24.dp),
                             color = MaterialTheme.colorScheme.onBackground
                         )
+                    }
+                }
+            }
+        }
+
+        // Observe scroll and trigger loading next page when near the end
+        LaunchedEffect(listState) {
+            snapshotFlow {
+                val layoutInfo = listState.layoutInfo
+                val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+                val totalItems = layoutInfo.totalItemsCount
+                lastVisibleItem?.index to totalItems
+            }.collectLatest { (lastVisibleIndex, totalItems) ->
+                if (lastVisibleIndex != null && totalItems > 0) {
+                    // Trigger when we're within 3 items of the end AND not already loading
+                    if (lastVisibleIndex >= totalItems - 3) {
+                        android.util.Log.d("Home", "Triggering fetchNextPage: lastVisible=$lastVisibleIndex, total=$totalItems")
+                        appViewModel.fetchNextPage()
                     }
                 }
             }

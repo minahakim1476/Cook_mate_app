@@ -13,6 +13,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.toObject
 
 
@@ -44,9 +45,11 @@ class AppViewModel : ViewModel() {
 
     // Pagination state for recipes
     private var lastVisibleDocument: DocumentSnapshot? = null
-    private val pageSize: Long = 12
+    private val pageSize: Int = 12
     private var isLoadingPage = false
     private var allPagesLoaded = false
+    private val _recipesLoading = MutableLiveData<Boolean>(false)
+    val recipesLoading: LiveData<Boolean> = _recipesLoading
 
     // Settings: whether favorites feature is enabled
     private val _favoritesEnabled = MutableLiveData<Boolean>(SettingsRepository.isFavoritesEnabled())
@@ -124,8 +127,11 @@ class AppViewModel : ViewModel() {
         Log.d("AppViewModel", "Fetching recipes... reset=$reset lastVisible=${lastVisibleDocument != null}")
 
         isLoadingPage = true
+        _recipesLoading.value = true
+        Log.d("AppViewModel", "Starting page fetch. pageSize=$pageSize lastVisible=${lastVisibleDocument?.id}")
 
-        var query: Query = db.collection("recipes").orderBy("recipe_name").limit(pageSize)
+        // Use document ID ordering for reliable pagination across all documents
+        var query: Query = db.collection("recipes").orderBy(FieldPath.documentId()).limit(pageSize.toLong())
         lastVisibleDocument?.let { query = query.startAfter(it) }
 
         query.get()
@@ -143,6 +149,7 @@ class AppViewModel : ViewModel() {
 
                     // Update last visible document
                     lastVisibleDocument = result.documents.lastOrNull()
+                    Log.d("AppViewModel", "Fetched page size=${page.size} lastVisible=${lastVisibleDocument?.id}")
 
                     // If reset -> replace list, else append
                     val current = _recipeState.value
@@ -168,11 +175,13 @@ class AppViewModel : ViewModel() {
                 }
 
                 isLoadingPage = false
+                _recipesLoading.value = false
             }
             .addOnFailureListener { exception ->
                 Log.e("AppViewModel", "FAILURE: ${exception.message}", exception)
                 _recipeState.value = RecipeState.Error(exception.message ?: "Something went wrong")
                 isLoadingPage = false
+                _recipesLoading.value = false
             }
     }
 
